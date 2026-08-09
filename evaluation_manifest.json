@@ -1,0 +1,62 @@
+{
+  "evaluation_id": "healthcare-phase5-v1",
+  "environment": "SYNTHETIC_EVALUATION",
+  "dataset": "Phase 2-4 synthetic Healthcare IT evidence foundation",
+  "frozen_on": "2026-08-09",
+  "tasks": [
+    {
+      "task_id": "task_a_clinicbridge",
+      "task_type": "SINGLE_VENDOR_BRIEF",
+      "vendor_ids": ["vendor_clinicbridge_technologies"],
+      "evidence_ids": ["evidence_demo_06_14", "evidence_demo_06_13", "evidence_demo_06_05", "evidence_demo_06_04", "evidence_demo_06_03", "evidence_demo_06_02", "evidence_demo_06_01", "evidence_demo_06_09", "evidence_demo_06_08", "evidence_demo_06_07", "evidence_demo_06_06", "evidence_demo_06_12", "evidence_demo_06_11", "evidence_demo_06_10"],
+      "output_requirement": "Complete single-Vendor competitor brief with traceable Claims and Sources.",
+      "required_sections": ["Vendor Overview", "Solution Coverage", "Key Evidence", "Strengths", "Weaknesses", "Positioning", "Recommended Actions", "Sources"],
+      "is_synthetic": true
+    },
+    {
+      "task_id": "task_a_healthlink",
+      "task_type": "SINGLE_VENDOR_BRIEF",
+      "vendor_ids": ["vendor_healthlink_digital"],
+      "evidence_ids": ["evidence_demo_02_14", "evidence_demo_02_13", "evidence_demo_02_05", "evidence_demo_02_04", "evidence_demo_02_03", "evidence_demo_02_02", "evidence_demo_02_01", "evidence_demo_02_09", "evidence_demo_02_08", "evidence_demo_02_07", "evidence_demo_02_06", "evidence_demo_02_12", "evidence_demo_02_11", "evidence_demo_02_10"],
+      "output_requirement": "Complete single-Vendor competitor brief with traceable Claims and Sources.",
+      "required_sections": ["Vendor Overview", "Solution Coverage", "Key Evidence", "Strengths", "Weaknesses", "Positioning", "Recommended Actions", "Sources"],
+      "is_synthetic": true
+    },
+    {
+      "task_id": "task_a_integratedcare",
+      "task_type": "SINGLE_VENDOR_BRIEF",
+      "vendor_ids": ["vendor_integratedcare_labs"],
+      "evidence_ids": ["evidence_demo_08_14", "evidence_demo_08_13", "evidence_demo_08_05", "evidence_demo_08_04", "evidence_demo_08_03", "evidence_demo_08_02", "evidence_demo_08_01", "evidence_demo_08_09", "evidence_demo_08_08", "evidence_demo_08_07", "evidence_demo_08_06", "evidence_demo_08_12", "evidence_demo_08_11", "evidence_demo_08_10"],
+      "output_requirement": "Complete single-Vendor competitor brief with traceable Claims and Sources.",
+      "required_sections": ["Vendor Overview", "Solution Coverage", "Key Evidence", "Strengths", "Weaknesses", "Positioning", "Recommended Actions", "Sources"],
+      "is_synthetic": true
+    },
+    {
+      "task_id": "task_a_medcore",
+      "task_type": "SINGLE_VENDOR_BRIEF",
+      "vendor_ids": ["vendor_medcore_systems"],
+      "evidence_ids": ["evidence_demo_01_14", "evidence_demo_01_13", "evidence_demo_01_05", "evidence_demo_01_04", "evidence_demo_01_03", "evidence_demo_01_02", "evidence_demo_01_01", "evidence_demo_01_09", "evidence_demo_01_08", "evidence_demo_01_07", "evidence_demo_01_06", "evidence_demo_01_12", "evidence_demo_01_11", "evidence_demo_01_10"],
+      "output_requirement": "Complete single-Vendor competitor brief with traceable Claims and Sources.",
+      "required_sections": ["Vendor Overview", "Solution Coverage", "Key Evidence", "Strengths", "Weaknesses", "Positioning", "Recommended Actions", "Sources"],
+      "is_synthetic": true
+    },
+    {
+      "task_id": "task_a_medidata",
+      "task_type": "SINGLE_VENDOR_BRIEF",
+      "vendor_ids": ["vendor_medidata_platform_co"],
+      "evidence_ids": ["evidence_demo_05_14", "evidence_demo_05_13", "evidence_demo_05_05", "evidence_demo_05_04", "evidence_demo_05_03", "evidence_demo_05_02", "evidence_demo_05_01", "evidence_demo_05_09", "evidence_demo_05_08", "evidence_demo_05_07", "evidence_demo_05_06", "evidence_demo_05_12", "evidence_demo_05_11", "evidence_demo_05_10"],
+      "output_requirement": "Complete single-Vendor competitor brief with traceable Claims and Sources.",
+      "required_sections": ["Vendor Overview", "Solution Coverage", "Key Evidence", "Strengths", "Weaknesses", "Positioning", "Recommended Actions", "Sources"],
+      "is_synthetic": true
+    },
+    {
+      "task_id": "task_b_three_vendor_comparison",
+      "task_type": "THREE_VENDOR_COMPARISON",
+      "vendor_ids": ["vendor_clinicbridge_technologies", "vendor_healthlink_digital", "vendor_integratedcare_labs"],
+      "evidence_ids": ["evidence_demo_06_14", "evidence_demo_06_13", "evidence_demo_06_05", "evidence_demo_06_04", "evidence_demo_06_03", "evidence_demo_06_02", "evidence_demo_06_01", "evidence_demo_06_09", "evidence_demo_06_08", "evidence_demo_06_07", "evidence_demo_06_06", "evidence_demo_06_12", "evidence_demo_06_11", "evidence_demo_06_10", "evidence_demo_02_14", "evidence_demo_02_13", "evidence_demo_02_05", "evidence_demo_02_04", "evidence_demo_02_03", "evidence_demo_02_02", "evidence_demo_02_01", "evidence_demo_02_09", "evidence_demo_02_08", "evidence_demo_02_07", "evidence_demo_02_06", "evidence_demo_02_12", "evidence_demo_02_11", "evidence_demo_02_10", "evidence_demo_08_14", "evidence_demo_08_13", "evidence_demo_08_05", "evidence_demo_08_04", "evidence_demo_08_03", "evidence_demo_08_02", "evidence_demo_08_01", "evidence_demo_08_09", "evidence_demo_08_08", "evidence_demo_08_07", "evidence_demo_08_06", "evidence_demo_08_12", "evidence_demo_08_11", "evidence_demo_08_10"],
+      "output_requirement": "Three-Vendor comparison plus executive summary with traceable Claims and Sources.",
+      "required_sections": ["Executive Summary", "Comparison", "Recommended Actions", "Sources"],
+      "is_synthetic": true
+    }
+  ]
+}

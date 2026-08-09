@@ -1,0 +1,22 @@
+{
+  "country": "cn",
+  "max_records_per_competitor": 60,
+  "competitors": [
+    {
+      "name": "Sohu News",
+      "track_id": 436957087
+    },
+    {
+      "name": "Toutiao",
+      "track_id": 529092160
+    },
+    {
+      "name": "Tencent News",
+      "track_id": 399363156
+    },
+    {
+      "name": "NetEase News",
+      "track_id": 425349261
+    }
+  ]
+}

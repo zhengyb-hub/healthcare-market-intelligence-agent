@@ -1,0 +1,127 @@
+{
+  "dataset_name": "Synthetic Healthcare IT Vendor Demonstration Dataset",
+  "is_synthetic": true,
+  "disclaimer": "All vendors and facts in this file are fictional and must not be represented as real market evidence.",
+  "vendors": [
+    {
+      "vendor_id": "vendor_medcore_systems",
+      "vendor_name": "MedCore Systems",
+      "vendor_type": "Hospital Software Vendor",
+      "primary_market": "Multi-tier hospitals in demonstration markets",
+      "company_summary": "Synthetic vendor demonstrating integrated hospital information and clinical workflow solutions.",
+      "headquarters": "Demo City A",
+      "website": "https://demo.invalid/medcore-systems",
+      "target_customer_types": ["Hospital", "Healthcare Group"]
+    },
+    {
+      "vendor_id": "vendor_healthlink_digital",
+      "vendor_name": "HealthLink Digital",
+      "vendor_type": "Integrated Healthcare Technology Provider",
+      "primary_market": "Regional healthcare networks",
+      "company_summary": "Synthetic vendor focused on interoperability and regional health information exchange scenarios.",
+      "headquarters": "Demo City B",
+      "website": "https://demo.invalid/healthlink-digital",
+      "target_customer_types": ["Regional Health Authority", "Government", "Hospital"]
+    },
+    {
+      "vendor_id": "vendor_carematrix_technologies",
+      "vendor_name": "CareMatrix Technologies",
+      "vendor_type": "Healthcare Data Vendor",
+      "primary_market": "Hospital groups and data centres",
+      "company_summary": "Synthetic healthcare data platform and governance solution vendor.",
+      "headquarters": "Demo City C",
+      "website": "https://demo.invalid/carematrix-technologies",
+      "target_customer_types": ["Healthcare Group", "Hospital", "Regional Health Authority"]
+    },
+    {
+      "vendor_id": "vendor_regionalhealth_solutions",
+      "vendor_name": "RegionalHealth Solutions",
+      "vendor_type": "Healthcare IT Vendor",
+      "primary_market": "Regional public healthcare programmes",
+      "company_summary": "Synthetic vendor for regional healthcare platforms and public-sector coordination.",
+      "headquarters": "Demo City D",
+      "website": "https://demo.invalid/regionalhealth-solutions",
+      "target_customer_types": ["Government", "Regional Health Authority"]
+    },
+    {
+      "vendor_id": "vendor_medidata_platform_co",
+      "vendor_name": "MediData Platform Co.",
+      "vendor_type": "Healthcare Data Vendor",
+      "primary_market": "Large hospitals and healthcare groups",
+      "company_summary": "Synthetic vendor demonstrating healthcare analytics and data-platform capabilities.",
+      "headquarters": "Demo City E",
+      "website": "https://demo.invalid/medidata-platform",
+      "target_customer_types": ["Hospital", "Healthcare Group", "Medical Institution"]
+    },
+    {
+      "vendor_id": "vendor_clinicbridge_technologies",
+      "vendor_name": "ClinicBridge Technologies",
+      "vendor_type": "Digital Health Solution Provider",
+      "primary_market": "Medical institutions and patient service networks",
+      "company_summary": "Synthetic provider of patient-facing service and integration solutions.",
+      "headquarters": "Demo City F",
+      "website": "https://demo.invalid/clinicbridge-technologies",
+      "target_customer_types": ["Medical Institution", "Hospital"]
+    },
+    {
+      "vendor_id": "vendor_novahospital_systems",
+      "vendor_name": "NovaHospital Systems",
+      "vendor_type": "Hospital Software Vendor",
+      "primary_market": "General and specialist hospitals",
+      "company_summary": "Synthetic hospital software vendor covering operational and clinical information systems.",
+      "headquarters": "Demo City G",
+      "website": "https://demo.invalid/novahospital-systems",
+      "target_customer_types": ["Hospital", "Medical Institution"]
+    },
+    {
+      "vendor_id": "vendor_integratedcare_labs",
+      "vendor_name": "IntegratedCare Labs",
+      "vendor_type": "Integrated Healthcare Technology Provider",
+      "primary_market": "Integrated delivery and healthcare group scenarios",
+      "company_summary": "Synthetic integrated technology provider for connected clinical and management workflows.",
+      "headquarters": "Demo City H",
+      "website": "https://demo.invalid/integratedcare-labs",
+      "target_customer_types": ["Healthcare Group", "Hospital", "Insurance / Payer"]
+    },
+    {
+      "vendor_id": "vendor_bluepeak_healthtech",
+      "vendor_name": "BluePeak HealthTech",
+      "vendor_type": "Digital Health Solution Provider",
+      "primary_market": "Digital hospital transformation programmes",
+      "company_summary": "Synthetic provider demonstrating digital hospital and smart healthcare projects.",
+      "headquarters": "Demo City I",
+      "website": "https://demo.invalid/bluepeak-healthtech",
+      "target_customer_types": ["Hospital", "Healthcare Group"]
+    },
+    {
+      "vendor_id": "vendor_unifiedmedical_networks",
+      "vendor_name": "UnifiedMedical Networks",
+      "vendor_type": "Healthcare IT Vendor",
+      "primary_market": "Cross-institution healthcare networks",
+      "company_summary": "Synthetic vendor for healthcare cloud, integration, and shared-service scenarios.",
+      "headquarters": "Demo City J",
+      "website": "https://demo.invalid/unifiedmedical-networks",
+      "target_customer_types": ["Regional Health Authority", "Healthcare Group", "Government"]
+    },
+    {
+      "vendor_id": "vendor_carecloud_works",
+      "vendor_name": "CareCloud Works",
+      "vendor_type": "Healthcare IT Vendor",
+      "primary_market": "Cloud-enabled healthcare organisations",
+      "company_summary": "Synthetic healthcare cloud and managed platform solution vendor.",
+      "headquarters": "Demo City K",
+      "website": "https://demo.invalid/carecloud-works",
+      "target_customer_types": ["Hospital", "Medical Institution", "Healthcare Group"]
+    },
+    {
+      "vendor_id": "vendor_patientpath_solutions",
+      "vendor_name": "PatientPath Solutions",
+      "vendor_type": "Digital Health Solution Provider",
+      "primary_market": "Patient service and payer coordination scenarios",
+      "company_summary": "Synthetic provider demonstrating patient services and medical insurance information workflows.",
+      "headquarters": "Demo City L",
+      "website": "https://demo.invalid/patientpath-solutions",
+      "target_customer_types": ["Hospital", "Insurance / Payer", "Medical Institution"]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "taxonomy_name": "Healthcare IT Solution Taxonomy",
+  "taxonomy_version": "1.0",
+  "categories": [
+    {"category_id": "his", "name": "HIS", "description": "Core hospital information system capabilities supporting hospital-wide operational and clinical workflows."},
+    {"category_id": "emr_ehr", "name": "EMR / EHR", "description": "Electronic medical or health record solutions for longitudinal patient information."},
+    {"category_id": "clinical_information_systems", "name": "Clinical Information Systems", "description": "Departmental and clinical workflow systems used by care teams."},
+    {"category_id": "hospital_management", "name": "Hospital Management", "description": "Administrative, operational, finance, resource, and hospital management solutions."},
+    {"category_id": "healthcare_data_platform", "name": "Healthcare Data Platform", "description": "Platforms that aggregate, manage, and serve healthcare data for operational or analytical use."},
+    {"category_id": "regional_healthcare_platform", "name": "Regional Healthcare Platform", "description": "Regional or cross-institution healthcare information collaboration platforms."},
+    {"category_id": "digital_hospital", "name": "Digital Hospital", "description": "Integrated digital transformation solutions spanning hospital services and operations."},
+    {"category_id": "smart_healthcare", "name": "Smart Healthcare", "description": "Technology-enabled smart care, automation, and intelligent healthcare solution capabilities."},
+    {"category_id": "patient_services", "name": "Patient Services", "description": "Digital patient access, engagement, appointment, payment, and service-navigation capabilities."},
+    {"category_id": "healthcare_analytics", "name": "Healthcare Analytics", "description": "Reporting, business intelligence, clinical analytics, and decision-support data products."},
+    {"category_id": "healthcare_cloud", "name": "Healthcare Cloud", "description": "Healthcare-oriented cloud infrastructure, platforms, and managed cloud services."},
+    {"category_id": "medical_insurance_information_systems", "name": "Medical Insurance Information Systems", "description": "Information systems supporting medical insurance, payer, settlement, and reimbursement workflows."},
+    {"category_id": "data_governance", "name": "Data Governance", "description": "Healthcare data standards, quality, cataloguing, stewardship, and governance capabilities."},
+    {"category_id": "interoperability_integration", "name": "Interoperability / Integration", "description": "Interfaces, integration engines, standards, and cross-system interoperability capabilities."},
+    {"category_id": "other", "name": "Other", "description": "Healthcare IT evidence that does not yet fit a defined category."}
+  ]
+}
