@@ -4,13 +4,20 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from types import SimpleNamespace
 import unittest
 
 from streamlit.testing.v1 import AppTest
 
 from src.healthcare.bootstrap import bootstrap_product_workflow
 from src.healthcare.integrity import run_integrity_checks
-from src.healthcare.ui import PORTFOLIO_VERSION, PRIMARY_NAVIGATION
+from src.healthcare.ui import (
+    PORTFOLIO_VERSION,
+    PRIMARY_NAVIGATION,
+    _matches_signal,
+    _readiness_rates,
+    _signal_priority,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -45,7 +52,7 @@ class Phase6ProductisationTests(unittest.TestCase):
             TEST_DATABASE.unlink()
 
     def test_release_identity_and_information_architecture(self) -> None:
-        self.assertEqual(PORTFOLIO_VERSION, "1.0.0-rc1")
+        self.assertEqual(PORTFOLIO_VERSION, "1.1.0")
         self.assertEqual(len(PRIMARY_NAVIGATION), 9)
         self.assertEqual(
             PRIMARY_NAVIGATION,
@@ -54,6 +61,45 @@ class Phase6ProductisationTests(unittest.TestCase):
                 "Briefs", "Review", "Analytics", "Settings",
             ),
         )
+
+    def test_decision_readiness_rates_use_current_workflow_counts(self) -> None:
+        rates = _readiness_rates(
+            {
+                "validated_evidence_count": 90,
+                "evidence_count": 100,
+                "review_count": 3,
+                "brief_count": 12,
+                "traceability_rate": 87.5,
+            },
+            {
+                "briefs_awaiting_review": [1, 2],
+                "claims_awaiting_review": [1, 2, 3, 4],
+                "unsupported_claims": [1],
+                "evidence_needing_validation": [1, 2, 3],
+            },
+            [
+                {"freshness": {"needs_intelligence_refresh": False}},
+                {"freshness": {"needs_intelligence_refresh": True}},
+            ],
+        )
+        self.assertEqual(rates["evidence_validation"], 90.0)
+        self.assertEqual(rates["brief_review"], 25.0)
+        self.assertEqual(rates["traceability"], 87.5)
+        self.assertEqual(rates["watchlist_freshness"], 50.0)
+        self.assertEqual(rates["open_actions"], 9.0)
+
+    def test_signal_priority_and_search_are_deterministic(self) -> None:
+        event = SimpleNamespace(
+            title="Interoperability tender",
+            summary="Regional procurement signal",
+            event_type="NEW_PROCUREMENT_SIGNAL",
+            source_type="Tender Announcement",
+            importance="HIGH",
+        )
+        self.assertEqual(_signal_priority(event), 35)
+        self.assertTrue(_matches_signal(event, "regional", "BluePeak HealthTech"))
+        self.assertTrue(_matches_signal(event, "bluepeak", "BluePeak HealthTech"))
+        self.assertFalse(_matches_signal(event, "case study", "BluePeak HealthTech"))
 
     def test_e2e_demo_claim_evidence_and_export(self) -> None:
         briefs = self.intelligence.brief_repository.list_all()

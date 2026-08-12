@@ -1,6 +1,6 @@
 # AI-Powered Healthcare Market Intelligence Agent
 
-> Portfolio Release Candidate `1.0.0-rc1`
+> Public product release `1.1.0`
 
 An evidence-grounded competitor intelligence workspace designed for healthcare IT marketing, market intelligence, and sales enablement workflows.
 
@@ -49,6 +49,18 @@ Claims are also classified as `SUPPORTED`, `PARTIALLY_SUPPORTED`, or `UNSUPPORTE
 - Deterministic Demo Mode with no API key required
 - GitHub Actions validation
 
+## Product Experience
+
+Version 1.1 introduces a workflow-led intelligence workspace informed by established competitive and market intelligence products. The interface now emphasizes:
+
+- priority-first signal triage instead of a chronological activity dump;
+- decision-readiness indicators for validation, review, traceability, and watchlist freshness;
+- a filterable intelligence feed with watchlist and evidence-link visibility;
+- action queues that route directly into review, comparison, and analytics workspaces;
+- consistent context, workflow, status, and metric patterns across all major pages.
+
+The product-pattern benchmark and implementation decisions are documented in [PRODUCT_BENCHMARK.md](PRODUCT_BENCHMARK.md).
+
 ## Product Workflow
 
 ```mermaid
@@ -69,7 +81,7 @@ The final information architecture uses nine primary workspaces:
 
 | Workspace | Purpose |
 |---|---|
-| Overview | Command center for monitored scope, recent changes, watchlist, quality, and required action |
+| Overview | Monitored scope, material changes, watchlist status, quality, and required action |
 | Intelligence | Compact Feed and priority Vendor Watchlist |
 | Vendors | Searchable Vendor library, profile detail, Evidence timeline, and intelligence generation |
 | Evidence | Search, filters, validation/quality detail, related Claims, and import |
@@ -155,7 +167,7 @@ Demo Mode automatically loads a deterministic synthetic healthcare IT dataset an
 4. Review Claim-level citations.
 5. Export a structured Brief.
 
-The UI persistently labels the environment `DEMO MODE · Synthetic Evaluation Data`. Synthetic provenance also propagates to Evidence, Briefs, Feed events, Opportunities, derived outputs, usage, and audit records.
+The UI persistently labels the environment `Evaluation workspace · Synthetic records only`. Synthetic provenance also propagates to Evidence, Briefs, Feed events, Opportunities, derived outputs, usage, and audit records.
 
 ## Evaluation Results
 
@@ -175,7 +187,7 @@ The reviewed traceability sample is small: 7 of 8 manually reviewed Claims are t
 The real paired human Benchmark is not complete. Therefore the following remain `NOT AVAILABLE` and must not be presented as achieved KPIs:
 
 - Manual Median
-- AI-Assisted Median
+- Assisted Workflow Median
 - Time Reduction
 - Speed Multiple
 

@@ -1,6 +1,6 @@
-# Release Checklist — 1.0.0-rc1
+# Release Checklist — 1.1.0
 
-Release classification: **Portfolio Release Candidate**
+Release classification: **Public Portfolio Release**
 Not classified as: Production Ready
 
 | Check | Status | Evidence |
@@ -25,7 +25,7 @@ Not classified as: Production Ready
 
 ## Release blockers
 
-Any failed full-suite test, data-integrity mismatch, Streamlit startup failure, AppTest exception, invalid citation, exposed secret, or changed Evaluation count blocks Release Candidate sign-off.
+Any failed full-suite test, data-integrity mismatch, Streamlit startup failure, AppTest exception, invalid citation, exposed secret, or changed Evaluation count blocks release sign-off.
 
 The absence of a completed real paired human Benchmark remains an **Evaluation limitation**, not a core-program blocker, provided every associated KPI remains `NOT AVAILABLE`.
 

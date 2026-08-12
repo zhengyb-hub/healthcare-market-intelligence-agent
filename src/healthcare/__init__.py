@@ -8,7 +8,7 @@ from .bootstrap import (
 from .database import Database
 from .services import DataFoundationService, EvidenceService, VendorService
 
-__version__ = "1.0.0-rc1"
+__version__ = "1.1.0"
 
 __all__ = [
     "Database",

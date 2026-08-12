@@ -68,4 +68,4 @@ The final portfolio release demonstrates the full Evidence → Decision workflow
 
 ## Portfolio readiness
 
-The repository is suitable for formal portfolio presentation as a **Portfolio Release Candidate**. The principal remaining evaluation gap is real paired human timing; the principal presentation gap is final static screenshot capture in an unrestricted local browser. Neither is a core-program defect.
+The repository is suitable for formal portfolio presentation as a **Public Portfolio Release**. The principal remaining evaluation gap is real paired human timing; the principal presentation gap is final static screenshot capture in an unrestricted local browser. Neither is a core-program defect.

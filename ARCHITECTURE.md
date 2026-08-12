@@ -119,4 +119,4 @@ Legacy consumer-app adapters are isolated and are not imported by the healthcare
 
 ## Deployment boundary
 
-The release target is a **Portfolio Release Candidate**, not “Production Ready.” A production deployment would still require authentication, authorization, managed secrets, a production database, observability, backup/recovery, compliance review, data-source agreements, and operational ownership.
+The release target is a **Public Portfolio Release**, not “Production Ready.” A production deployment would still require authentication, authorization, managed secrets, a production database, observability, backup/recovery, compliance review, data-source agreements, and operational ownership.
