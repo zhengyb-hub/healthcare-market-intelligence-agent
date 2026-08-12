@@ -52,13 +52,6 @@ jobs:
           python scripts/run_evaluation.py
           --database data/healthcare_intelligence.db
 
-      - name: Export and validate CV metrics
-        run: >-
-          python scripts/export_cv_metrics.py
-          --database data/healthcare_intelligence.db
-          && python scripts/validate_cv_metrics.py
-          --database data/healthcare_intelligence.db
-
       - name: Validate schema and data integrity
         run: >-
           python scripts/check_data_integrity.py

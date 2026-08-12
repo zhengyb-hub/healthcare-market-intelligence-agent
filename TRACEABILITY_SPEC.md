@@ -47,7 +47,7 @@ An unsupported inference/recommendation remains visibly marked so evidence gaps 
 
 `TraceabilityService.validate_brief` returns total, supported, partially supported, unsupported, and traceable Claim counts; invalid-citation details/count; unsupported FACT Claim IDs; and `PASS` or `FAIL`.
 
-`PASS` means there are no invalid citations and no unsupported FACTs. It is a structural traceability result, not a semantic accuracy score or CV KPI.
+`PASS` means there are no invalid citations and no unsupported FACTs. It is a structural traceability result, not a semantic accuracy score or production KPI.
 
 ## Human review
 
@@ -57,7 +57,7 @@ Brief review uses `DRAFT`, `IN_REVIEW`, `NEEDS_REVISION`, `APPROVED`, and `FINAL
 
 ## Phase 5 Claim-level Source Traceability Rate
 
-The CV-facing metric is not the Brief-level `PASS` count. A reviewed Claim is traceable only when it cites at least one Evidence ID, every cited ID exists, every cited ID belongs to the owning Brief's Evidence Pack, and no invalid citation is present.
+The Claim-level metric is not the Brief-level `PASS` count. A reviewed Claim is traceable only when it cites at least one Evidence ID, every cited ID exists, every cited ID belongs to the owning Brief's Evidence Pack, and no invalid citation is present.
 
 ```text
 Source Traceability Rate =
@@ -84,4 +84,4 @@ Deterministic demo Claims cite real synthetic Evidence IDs from the generated Pa
 - Saved Detailed, Executive, and Sales comparison views reuse one Comparison Brief; they do not trigger three independent analyses.
 - If any cited basis is synthetic, the derived Opportunity/Brief/Sales record is marked synthetic.
 
-Phase 4 integrity validation checks all new Evidence/Claim/Vendor/Brief references and reports synthetic flag loss. These structural results remain distinct from accuracy, productivity, ROI, or CV KPI measurement.
+Phase 4 integrity validation checks all new Evidence/Claim/Vendor/Brief references and reports synthetic flag loss. These structural results remain distinct from accuracy, productivity, ROI, or production KPI measurement.

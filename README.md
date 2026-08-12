@@ -179,7 +179,7 @@ The real paired human Benchmark is not complete. Therefore the following remain 
 - Time Reduction
 - Speed Multiple
 
-See [EVALUATION_REPORT.md](EVALUATION_REPORT.md), [METRIC_AUDIT.md](METRIC_AUDIT.md), and [CV_EVIDENCE.md](CV_EVIDENCE.md).
+See [EVALUATION_REPORT.md](EVALUATION_REPORT.md) and [METRIC_AUDIT.md](METRIC_AUDIT.md).
 
 ## Tech Stack
 
@@ -232,8 +232,6 @@ python scripts/seed_demo_data.py --reset
 python scripts/seed_phase3_demo.py
 python scripts/seed_phase4_demo.py
 python scripts/run_evaluation.py
-python scripts/export_cv_metrics.py
-python scripts/validate_cv_metrics.py
 python scripts/check_data_integrity.py
 ```
 
@@ -279,4 +277,4 @@ Phase 6 follows `POLISH > EXPAND`; new core features were not added. Deferred id
 
 This project demonstrates product thinking, healthcare business-context modeling, data design, evidence-grounded AI, human-in-the-loop workflow design, analytical measurement, honest evaluation, UI productisation, and release discipline.
 
-For the recruiter-facing narrative, demo script, role-based critique, and evidence-safe CV language, see [PORTFOLIO_GUIDE.md](PORTFOLIO_GUIDE.md).
+For the project narrative, demo script, and role-based critique, see [PORTFOLIO_GUIDE.md](PORTFOLIO_GUIDE.md).

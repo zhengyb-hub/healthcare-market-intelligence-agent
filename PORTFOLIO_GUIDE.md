@@ -62,17 +62,9 @@ The final portfolio release demonstrates the full Evidence → Decision workflow
 
 - **Value:** demonstrates business framing, domain taxonomy, persistent data design, evidence-grounded AI, human-in-the-loop UX, Analytics, evaluation governance, testing, and productisation.
 - **Immature:** not hosted, not multi-user, and not validated on production healthcare data.
-- **Potential confusion:** portfolio metrics could be misread as client impact; synthetic scope and Benchmark limits are repeated in the UI, README, CV artifacts, and release docs.
+- **Potential confusion:** portfolio metrics could be misread as client impact; synthetic scope and Benchmark limits are repeated in the UI, README, evaluation artifacts, and release docs.
 - **Remove:** student-demo visual signals, 13 peer tabs, large phase descriptions, and decorative emoji.
 - **Improve later:** approved screenshots, deployment walkthrough, and real paired workflow evaluation.
-
-## Evidence-safe CV language
-
-Use:
-
-> Built a portfolio implementation of an evidence-grounded healthcare IT market intelligence workflow covering 12 synthetic Vendor profiles, 183 synthetic Evidence records, 12 structured Briefs, and 120 Claims, with 0 invalid citations in current structured validation.
-
-Do not claim client adoption, production deployment, real hospital data, or time reduction. Use the generated statements in `CV_EVIDENCE.md` only with their sample and environment qualifiers.
 
 ## Portfolio readiness
 

@@ -346,7 +346,7 @@ Marked Duplicates: 6
 Validation: 168 Valid / 9 Warning / 3 Invalid
 ```
 
-All demo Vendors and Evidence set `is_synthetic = true`. The UI displays a global demo warning and record-level synthetic warnings. Synthetic records must not be used as real Healthcare IT facts or CV performance evidence.
+All demo Vendors and Evidence set `is_synthetic = true`. The UI displays a global demo warning and record-level synthetic warnings. Synthetic records must not be used as real Healthcare IT facts or production performance evidence.
 
 ## 11. Integrity checks
 
@@ -479,4 +479,4 @@ UsageEvent records the controlled interaction type, entity, actor, metadata, tim
 
 ## 26. Phase 4 integrity and boundary
 
-Integrity checks now validate Phase 4 JSON, vocabularies, Vendor/Evidence/Claim/Brief references, duplicate-group roles, Opportunity Evidence, and synthetic propagation. Phase 4 does not calculate workflow benchmarks, time savings, ROI, CV KPI evidence, or production performance rates; it also does not implement full accounts/permissions, external notifications, CRM integration, or the Phase 6 visual design system.
+Integrity checks now validate Phase 4 JSON, vocabularies, Vendor/Evidence/Claim/Brief references, duplicate-group roles, Opportunity Evidence, and synthetic propagation. Phase 4 does not calculate workflow benchmarks, time savings, ROI, or production performance rates; it also does not implement full accounts/permissions, external notifications, CRM integration, or the Phase 6 visual design system.

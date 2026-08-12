@@ -16,7 +16,7 @@ flowchart TB
         QUALITY["Validation / Deduplication / Quality / Freshness"]
         INTELLIGENCE["Evidence Pack / AI / Claims / Briefs"]
         WORKFLOW["Feed / Watchlist / Market Map / Opportunities / Review"]
-        ANALYTICS["Analytics / Benchmark / CV Evidence"]
+        ANALYTICS["Analytics / Benchmark / Evaluation"]
         EXPORT["Markdown / JSON / CSV"]
     end
 
@@ -97,7 +97,7 @@ Without `OPENAI_API_KEY`, deterministic generation produces reviewable synthetic
 
 ## Metric boundary
 
-`AnalyticsService.snapshot()` is the only source used by the Analytics UI and CV/evaluation exports. Benchmark KPIs require complete comparable Manual/AI pairs and a minimum valid sample. DRAFT, unpaired, and non-comparable observations cannot enter efficiency KPIs.
+`AnalyticsService.snapshot()` is the only source used by the Analytics UI and evaluation exports. Benchmark KPIs require complete comparable Manual/AI pairs and a minimum valid sample. DRAFT, unpaired, and non-comparable observations cannot enter efficiency KPIs.
 
 ## Component status
 

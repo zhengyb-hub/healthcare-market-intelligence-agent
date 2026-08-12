@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 import unittest
 from uuid import uuid4
@@ -146,25 +145,26 @@ class Phase5AnalyticsBenchmarkTests(unittest.TestCase):
         self.assertEqual(result["task_count"], 6)
         self.assertTrue(all(task.is_synthetic for task in self.benchmark.tasks()))
 
-    def test_cv_metrics_export_and_validation(self) -> None:
+    def test_evaluation_artifacts_export_from_snapshot(self) -> None:
         paths = self.analytics.export_artifacts(self.output_dir)
-        payload = json.loads(paths["cv_metrics"].read_text(encoding="utf-8"))
-        self.assertEqual(payload["evidence_records"], 183)
-        self.assertEqual(self.analytics.validate_cv_file(paths["cv_metrics"])["result"], "PASS")
+        self.assertEqual(set(paths), {"metric_audit", "evaluation_report"})
+        report = paths["evaluation_report"].read_text(encoding="utf-8")
+        self.assertIn("- Evidence Records: 183", report)
 
-    def test_cv_evidence_uses_same_values_as_snapshot(self) -> None:
+    def test_metric_audit_uses_current_snapshot(self) -> None:
         paths = self.analytics.export_artifacts(self.output_dir)
-        payload = json.loads(paths["cv_metrics"].read_text(encoding="utf-8"))
-        evidence = paths["cv_evidence"].read_text(encoding="utf-8")
-        self.assertIn(f"CV Value: {payload['evidence_records']}", evidence)
-        self.assertIn(f"Sample Size: {payload['reviewed_claims']}", evidence)
-
-    def test_dashboard_snapshot_and_cv_export_share_service(self) -> None:
         snapshot = self.analytics.snapshot()
-        cv = self.analytics.cv_metrics()
-        self.assertEqual(cv["vendors_monitored"], snapshot["active_vendor_count"])
-        self.assertEqual(cv["competitor_briefs"], snapshot["brief_count"])
-        self.assertEqual(cv["traceability_pct"], snapshot["traceability_rate"])
+        audit = paths["metric_audit"].read_text(encoding="utf-8")
+        self.assertIn("# Metric Audit", audit)
+        self.assertIn(f"| evidence_count |", audit)
+        self.assertIn(f"| {snapshot['evidence_count']} |", audit)
+
+    def test_dashboard_snapshot_and_evaluation_export_share_service(self) -> None:
+        snapshot = self.analytics.snapshot()
+        paths = self.analytics.export_artifacts(self.output_dir)
+        report = paths["evaluation_report"].read_text(encoding="utf-8")
+        self.assertIn(f"- Active Vendors: {snapshot['active_vendor_count']}", report)
+        self.assertIn(f"- Source Traceability Rate: {snapshot['traceability_rate']}%", report)
 
     def test_benchmark_synthetic_flag_is_persisted(self) -> None:
         task_id = self.benchmark.tasks()[0].task_id

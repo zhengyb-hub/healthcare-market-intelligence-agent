@@ -18,7 +18,7 @@ Not classified as: Production Ready
 | README works | PASS | Final setup, run, test, export, limitation, and portfolio sections |
 | Tests pass | PASS | 67 passed / 0 failed; Phase 5 baseline was 61 / 0 |
 | Synthetic labels visible | PASS | Persistent global banner and record-level status |
-| Metrics consistent | PASS | CV metric validation PASS with no mismatches; main DB counts unchanged after evaluation rerun |
+| Metrics consistent | PASS | Evaluation artifacts use the AnalyticsService snapshot; main DB counts unchanged after evaluation rerun |
 | Traceability works | PASS | Claim/Evidence E2E and current 0 invalid citations |
 | Benchmark limits honest | PASS | Manual/AI efficiency KPIs remain NOT AVAILABLE |
 | Portfolio screenshots | GUIDE READY | Deterministic eight-screen capture guide supplied |

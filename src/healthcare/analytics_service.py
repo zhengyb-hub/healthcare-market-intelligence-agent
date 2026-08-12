@@ -1,4 +1,4 @@
-"""Unified Phase 5 metrics, benchmark, and CV-evidence services."""
+"""Unified Phase 5 metrics, benchmark, and evaluation services."""
 
 from __future__ import annotations
 
@@ -282,7 +282,7 @@ class BenchmarkService:
 
 
 class AnalyticsService:
-    """The sole calculation surface for dashboard, evaluation, and CV metrics."""
+    """The sole calculation surface for dashboard and evaluation metrics."""
 
     def __init__(
         self,
@@ -419,60 +419,6 @@ class AnalyticsService:
         metrics["environment"] = "SYNTHETIC_EVALUATION"
         return metrics
 
-    def cv_metrics(self) -> dict[str, Any]:
-        snapshot = self.snapshot()
-        benchmark = snapshot["benchmark"]
-        values = {
-            "environment": snapshot["environment"],
-            "vendors_monitored": snapshot["active_vendor_count"],
-            "evidence_records": snapshot["evidence_count"],
-            "validated_evidence_records": snapshot["validated_evidence_count"],
-            "competitor_briefs": snapshot["brief_count"],
-            "claims_generated": snapshot["claim_count"],
-            "reviewed_claims": snapshot["reviewed_claim_count"],
-            "traceable_claims": snapshot["traceable_claim_count"],
-            "traceability_pct": snapshot["traceability_rate"],
-            "supported_claims": snapshot["supported_claim_count"],
-            "partially_supported_claims": snapshot["partially_supported_claim_count"],
-            "unsupported_claims": snapshot["unsupported_claim_count"],
-            "invalid_citations": snapshot["invalid_citation_count"],
-            "manual_median_minutes": benchmark["manual"]["median"],
-            "ai_median_minutes": benchmark["ai_assisted"]["median"],
-            "time_saved_minutes": benchmark["time_saved_minutes"],
-            "time_reduction_pct": benchmark["time_reduction_pct"],
-            "speed_multiple": benchmark["speed_multiple"],
-            "benchmark_runs": benchmark["paired_sample_size"],
-        }
-        values["cv_bullets"] = self.cv_bullets(values)
-        return values
-
-    @staticmethod
-    def cv_bullets(values: dict[str, Any]) -> list[str]:
-        first = (
-            f"Built a healthcare IT intelligence workflow covering {values['vendors_monitored']} "
-            f"synthetic vendor profiles and {values['evidence_records']} synthetic evidence records, "
-            f"generating {values['competitor_briefs']} structured competitor briefs"
-        )
-        if values["time_reduction_pct"] is not None:
-            first += (
-                f" and reducing median preparation time from {values['manual_median_minutes']:.1f} "
-                f"to {values['ai_median_minutes']:.1f} minutes ({values['time_reduction_pct']:.1f}%)."
-            )
-        else:
-            first += "."
-        if values["traceability_pct"] is None:
-            second = (
-                "Implemented Streamlit and GitHub Actions validation with claim-level citation checks; "
-                "a reviewed sample is still required before reporting a traceability percentage."
-            )
-        else:
-            second = (
-                "Implemented Streamlit and GitHub Actions validation, achieving "
-                f"{values['traceability_pct']:.1f}% claim-level source traceability across "
-                f"{values['reviewed_claims']} reviewed synthetic-evaluation claims."
-            )
-        return [first, second]
-
     @staticmethod
     def _shown(value: Any, suffix: str = "") -> str:
         if value is None:
@@ -485,9 +431,6 @@ class AnalyticsService:
         output = Path(output_dir)
         output.mkdir(parents=True, exist_ok=True)
         snapshot = self.snapshot()
-        cv = self.cv_metrics()
-        cv_path = output / "CV_METRICS.json"
-        cv_path.write_text(json.dumps(cv, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
         definitions = self.definitions()
         metric_rows = []
@@ -519,86 +462,15 @@ class AnalyticsService:
         audit_path = output / "METRIC_AUDIT.md"
         audit_path.write_text(audit + "\n", encoding="utf-8")
 
-        benchmark = snapshot["benchmark"]
-        entries = [
-            self._cv_entry("Active Healthcare IT Vendors", cv["vendors_monitored"], definitions["active_vendor_count"], "vendors", cv["vendors_monitored"], "Current database snapshot", "Synthetic evaluation"),
-            self._cv_entry("Evidence Records", cv["evidence_records"], definitions["evidence_count"], "evidence", cv["evidence_records"], "Current database snapshot", "Synthetic evaluation"),
-            self._cv_entry("Structured Competitor Briefs", cv["competitor_briefs"], definitions["brief_count"], "competitor_briefs", cv["competitor_briefs"], "Current database snapshot", "Synthetic evaluation"),
-            self._cv_entry(
-                "Claim-Level Source Traceability", cv["traceability_pct"],
-                definitions["traceability_rate"],
-                "claims, competitor_briefs, evidence_packs, evidence",
-                cv["reviewed_claims"], "Current database snapshot", "Synthetic evaluation",
-                suffix="%",
-                limitations=(
-                    "The reviewed sample contains one completed synthetic Brief review; the frozen "
-                    "Phase 5 tasks still require human review before a fixed-set rate can be reported."
-                ),
-            ),
-            self._cv_entry("Median Brief Preparation Time Reduction", cv["time_reduction_pct"], MetricDefinition("time_reduction_pct", "Median reduction between comparable paired Manual and AI-assisted workflows.", "(manual median - AI median) / manual median * 100", "Complete COMPARABLE paired runs.", "Draft, unpaired, and NON_COMPARABLE runs."), "benchmark_runs", cv["benchmark_runs"], "Current benchmark history", "Synthetic evaluation workflow; manually entered human timing", suffix="%"),
-        ]
-        cv_evidence = "\n".join(
-            [
-                "# CV Evidence",
-                "",
-                "> Environment: **Synthetic Evaluation / Portfolio**, not live production usage.",
-                "",
-                *entries,
-                "## Recommended English CV bullets",
-                "",
-                f"1. {cv['cv_bullets'][0]}",
-                f"2. {cv['cv_bullets'][1]}",
-                "",
-                "The preparation-time claim must not be used until at least five complete comparable paired runs exist.",
-            ]
-        )
-        evidence_path = output / "CV_EVIDENCE.md"
-        evidence_path.write_text(cv_evidence + "\n", encoding="utf-8")
-
-        report = self._evaluation_report(snapshot, cv)
+        report = self._evaluation_report(snapshot)
         report_path = output / "EVALUATION_REPORT.md"
         report_path.write_text(report + "\n", encoding="utf-8")
         return {
-            "cv_metrics": cv_path,
             "metric_audit": audit_path,
-            "cv_evidence": evidence_path,
             "evaluation_report": report_path,
         }
 
-    def _cv_entry(
-        self,
-        metric: str,
-        value: Any,
-        definition: MetricDefinition,
-        source: str,
-        sample_size: Any,
-        period: str,
-        data_type: str,
-        suffix: str = "",
-        limitations: str = "",
-    ) -> str:
-        limitations = limitations or (
-            "No valid paired sample is available; do not use this KPI on a CV."
-            if value is None
-            else "Portfolio evaluation only; do not describe as client production usage."
-        )
-        return "\n".join(
-            [
-                f"## {metric}", "", f"Metric: {metric}", "",
-                f"CV Value: {self._shown(value, suffix)}", "",
-                f"Definition: {definition.definition}", "",
-                f"Formula: {definition.formula}", "",
-                "Data Source: SQLite analytics_service snapshot", "",
-                f"Database Table / File: {source}", "",
-                f"Sample Size: {sample_size}", "",
-                f"Evaluation Period: {period}", "",
-                f"Synthetic / Real: {data_type}", "",
-                "How to Reproduce: `python scripts/export_cv_metrics.py`", "",
-                f"Limitations: {limitations}", "",
-            ]
-        )
-
-    def _evaluation_report(self, snapshot: dict[str, Any], cv: dict[str, Any]) -> str:
+    def _evaluation_report(self, snapshot: dict[str, Any]) -> str:
         benchmark = snapshot["benchmark"]
         manifest = self.benchmark_service.manifest()
         manifest_check = self.benchmark_service.validate_manifest()
@@ -642,20 +514,10 @@ class AnalyticsService:
                 "- Current single-Vendor tasks use the complete validated non-duplicate Evidence available per selected Vendor (14 records), below the suggested 20-30-record scope.",
                 "- A preparation-time reduction is unavailable until at least five real, complete, comparable paired runs have been recorded.",
                 "- The current reviewed-Claim traceability sample comes from one completed synthetic Brief review; frozen Phase 5 task review is pending.",
-                "- Review/first-pass metrics should not be used as CV claims while the reviewed sample remains small.", "",
+                "- Review and first-pass metrics remain directional while the reviewed sample is small.", "",
                 "## Reproduction", "",
                 "1. `python scripts/seed_demo_data.py --reset`", "2. `python scripts/seed_phase3_demo.py`", "3. `python scripts/seed_phase4_demo.py`",
                 "4. `python scripts/run_evaluation.py`", "5. Enter actual Manual and remaining human AI stage times in the Benchmark page.",
-                "6. `python scripts/export_cv_metrics.py`", "7. `python scripts/validate_cv_metrics.py`",
+                "6. `python scripts/check_data_integrity.py`",
             ]
         )
-
-    def validate_cv_file(self, path: str | Path) -> dict[str, Any]:
-        recorded = json.loads(Path(path).read_text(encoding="utf-8"))
-        expected = self.cv_metrics()
-        mismatches = {
-            key: {"recorded": recorded.get(key), "expected": value}
-            for key, value in expected.items()
-            if recorded.get(key) != value
-        }
-        return {"result": "PASS" if not mismatches else "FAIL", "mismatches": mismatches}

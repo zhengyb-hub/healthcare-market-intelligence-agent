@@ -57,7 +57,7 @@ Completed Brief reviews: 1; average recorded review time: NOT AVAILABLE; average
 - Current single-Vendor tasks use the complete validated non-duplicate Evidence available per selected Vendor (14 records), below the suggested 20-30-record scope.
 - A preparation-time reduction is unavailable until at least five real, complete, comparable paired runs have been recorded.
 - The current reviewed-Claim traceability sample comes from one completed synthetic Brief review; frozen Phase 5 task review is pending.
-- Review/first-pass metrics should not be used as CV claims while the reviewed sample remains small.
+- Review and first-pass metrics remain directional while the reviewed sample is small.
 
 ## Reproduction
 
@@ -66,5 +66,4 @@ Completed Brief reviews: 1; average recorded review time: NOT AVAILABLE; average
 3. `python scripts/seed_phase4_demo.py`
 4. `python scripts/run_evaluation.py`
 5. Enter actual Manual and remaining human AI stage times in the Benchmark page.
-6. `python scripts/export_cv_metrics.py`
-7. `python scripts/validate_cv_metrics.py`
+6. `python scripts/check_data_integrity.py`
