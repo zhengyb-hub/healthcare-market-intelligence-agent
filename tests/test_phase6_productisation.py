@@ -54,13 +54,13 @@ class Phase6ProductisationTests(unittest.TestCase):
             TEST_DATABASE.unlink()
 
     def test_release_identity_and_information_architecture(self) -> None:
-        self.assertEqual(PORTFOLIO_VERSION, "1.1.0")
-        self.assertEqual(len(PRIMARY_NAVIGATION), 9)
+        self.assertEqual(PORTFOLIO_VERSION, "1.2.0")
+        self.assertEqual(len(PRIMARY_NAVIGATION), 10)
         self.assertEqual(
             PRIMARY_NAVIGATION,
             (
                 "Overview", "Intelligence", "Vendors", "Evidence", "Market",
-                "Briefs", "Review", "Analytics", "Settings",
+                "Activation", "Briefs", "Review", "Analytics", "Settings",
             ),
         )
 

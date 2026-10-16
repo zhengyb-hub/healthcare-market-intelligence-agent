@@ -1227,6 +1227,13 @@ class ProductWorkflowServices:
     audit_repository: AuditRepository
     benchmark_service: Any
     analytics_service: Any
+    change_detection_service: Any
+    marketing_action_service: Any
+    weekly_digest_service: Any
+    change_repository: Any
+    marketing_action_repository: Any
+    content_opportunity_repository: Any
+    weekly_digest_repository: Any
 
     def statistics(self) -> dict[str, Any]:
         quality = self.quality_service.distribution()
@@ -1245,4 +1252,8 @@ class ProductWorkflowServices:
             "saved_comparisons": self.saved_comparison_repository.count(),
             "usage_events": self.usage_repository.count(),
             "audit_events": self.audit_repository.count(),
+            "competitor_changes": self.change_repository.count(),
+            "marketing_action_briefs": self.marketing_action_repository.count(),
+            "content_opportunities": self.content_opportunity_repository.count(),
+            "weekly_digests": self.weekly_digest_repository.count(),
         }

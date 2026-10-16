@@ -71,6 +71,9 @@ def run_integrity_checks(database: Database) -> dict[str, Any]:
         "invalid_phase5_statuses": [],
         "orphan_phase5_references": [],
         "benchmark_total_mismatches": [],
+        "invalid_phase7_json": [],
+        "orphan_phase7_references": [],
+        "invalid_phase7_statuses": [],
     }
 
     with database.connect() as connection:
@@ -225,6 +228,10 @@ def run_integrity_checks(database: Database) -> dict[str, Any]:
             "usage_events": int(connection.execute("SELECT COUNT(*) FROM usage_events").fetchone()[0]),
             "audit_events": int(connection.execute("SELECT COUNT(*) FROM audit_events").fetchone()[0]),
             "benchmark_runs": int(connection.execute("SELECT COUNT(*) FROM benchmark_runs").fetchone()[0]),
+            "competitor_changes": int(connection.execute("SELECT COUNT(*) FROM competitor_changes").fetchone()[0]),
+            "marketing_action_briefs": int(connection.execute("SELECT COUNT(*) FROM marketing_action_briefs").fetchone()[0]),
+            "content_opportunities": int(connection.execute("SELECT COUNT(*) FROM content_opportunities").fetchone()[0]),
+            "weekly_digests": int(connection.execute("SELECT COUNT(*) FROM weekly_digests").fetchone()[0]),
         }
 
         vendor_ids = {
@@ -235,6 +242,67 @@ def run_integrity_checks(database: Database) -> dict[str, Any]:
             row["evidence_id"]
             for row in connection.execute("SELECT evidence_id FROM evidence").fetchall()
         }
+        change_ids = {
+            row["change_id"]
+            for row in connection.execute("SELECT change_id FROM competitor_changes").fetchall()
+        }
+        action_brief_ids = {
+            row["action_brief_id"]
+            for row in connection.execute("SELECT action_brief_id FROM marketing_action_briefs").fetchall()
+        }
+        for row in connection.execute("SELECT * FROM competitor_changes").fetchall():
+            try:
+                linked_evidence = set(json.loads(row["evidence_ids"]))
+            except (json.JSONDecodeError, TypeError):
+                issues["invalid_phase7_json"].append(row["change_id"])
+                linked_evidence = set()
+            if row["vendor_id"] not in vendor_ids or not linked_evidence.issubset(evidence_ids):
+                issues["orphan_phase7_references"].append(row["change_id"])
+            if row["status"] not in {"NEW", "REVIEWED", "ARCHIVED"}:
+                issues["invalid_phase7_statuses"].append(row["change_id"])
+        for row in connection.execute("SELECT * FROM marketing_action_briefs").fetchall():
+            try:
+                linked_vendors = set(json.loads(row["vendor_ids"]))
+                linked_evidence = set(json.loads(row["evidence_ids"]))
+                linked_changes = set(json.loads(row["change_ids"]))
+                json.loads(row["channels"])
+                json.loads(row["sections"])
+            except (json.JSONDecodeError, TypeError):
+                issues["invalid_phase7_json"].append(row["action_brief_id"])
+                linked_vendors, linked_evidence, linked_changes = set(), set(), set()
+            if (
+                not linked_vendors.issubset(vendor_ids)
+                or not linked_evidence.issubset(evidence_ids)
+                or not linked_changes.issubset(change_ids)
+            ):
+                issues["orphan_phase7_references"].append(row["action_brief_id"])
+            if row["status"] not in {"DRAFT", "IN_REVIEW", "APPROVED", "FINAL"}:
+                issues["invalid_phase7_statuses"].append(row["action_brief_id"])
+        for row in connection.execute("SELECT * FROM content_opportunities").fetchall():
+            try:
+                linked_evidence = set(json.loads(row["evidence_ids"]))
+                linked_changes = set(json.loads(row["source_change_ids"]))
+            except (json.JSONDecodeError, TypeError):
+                issues["invalid_phase7_json"].append(row["content_opportunity_id"])
+                linked_evidence, linked_changes = set(), set()
+            if (
+                row["action_brief_id"] not in action_brief_ids
+                or not linked_evidence.issubset(evidence_ids)
+                or not linked_changes.issubset(change_ids)
+            ):
+                issues["orphan_phase7_references"].append(row["content_opportunity_id"])
+            if row["status"] not in {"DRAFT", "APPROVED", "ARCHIVED"}:
+                issues["invalid_phase7_statuses"].append(row["content_opportunity_id"])
+        for row in connection.execute("SELECT * FROM weekly_digests").fetchall():
+            try:
+                linked_changes = set(json.loads(row["change_ids"]))
+                linked_evidence = set(json.loads(row["evidence_ids"]))
+                json.loads(row["sections"])
+            except (json.JSONDecodeError, TypeError):
+                issues["invalid_phase7_json"].append(row["digest_id"])
+                linked_changes, linked_evidence = set(), set()
+            if not linked_changes.issubset(change_ids) or not linked_evidence.issubset(evidence_ids):
+                issues["orphan_phase7_references"].append(row["digest_id"])
         pack_rows = connection.execute(
             "SELECT evidence_pack_id, vendor_ids, evidence_ids FROM evidence_packs"
         ).fetchall()

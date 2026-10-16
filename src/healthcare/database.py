@@ -8,7 +8,7 @@ import sqlite3
 from typing import Iterator
 
 
-SCHEMA_VERSION = "5.0"
+SCHEMA_VERSION = "6.0"
 
 
 class Database:
@@ -369,6 +369,67 @@ class Database:
                     UNIQUE(pair_id, workflow_type)
                 );
 
+                CREATE TABLE IF NOT EXISTS competitor_changes (
+                    change_id TEXT PRIMARY KEY,
+                    vendor_id TEXT NOT NULL,
+                    change_type TEXT NOT NULL,
+                    significance TEXT NOT NULL,
+                    headline TEXT NOT NULL,
+                    before_text TEXT NOT NULL,
+                    after_text TEXT NOT NULL,
+                    evidence_ids TEXT NOT NULL DEFAULT '[]',
+                    detected_at TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'NEW',
+                    is_synthetic INTEGER NOT NULL DEFAULT 0,
+                    fingerprint TEXT NOT NULL UNIQUE,
+                    FOREIGN KEY (vendor_id) REFERENCES vendors(vendor_id)
+                );
+
+                CREATE TABLE IF NOT EXISTS marketing_action_briefs (
+                    action_brief_id TEXT PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    objective TEXT NOT NULL,
+                    audience TEXT NOT NULL,
+                    channels TEXT NOT NULL DEFAULT '[]',
+                    vendor_ids TEXT NOT NULL DEFAULT '[]',
+                    evidence_ids TEXT NOT NULL DEFAULT '[]',
+                    change_ids TEXT NOT NULL DEFAULT '[]',
+                    sections TEXT NOT NULL DEFAULT '{}',
+                    status TEXT NOT NULL DEFAULT 'DRAFT',
+                    created_at TEXT NOT NULL,
+                    is_synthetic INTEGER NOT NULL DEFAULT 0
+                );
+
+                CREATE TABLE IF NOT EXISTS content_opportunities (
+                    content_opportunity_id TEXT PRIMARY KEY,
+                    action_brief_id TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    channel TEXT NOT NULL,
+                    content_format TEXT NOT NULL,
+                    audience TEXT NOT NULL,
+                    hook TEXT NOT NULL,
+                    angle TEXT NOT NULL,
+                    cta TEXT NOT NULL,
+                    evidence_ids TEXT NOT NULL DEFAULT '[]',
+                    source_change_ids TEXT NOT NULL DEFAULT '[]',
+                    status TEXT NOT NULL DEFAULT 'DRAFT',
+                    created_at TEXT NOT NULL,
+                    is_synthetic INTEGER NOT NULL DEFAULT 0,
+                    FOREIGN KEY (action_brief_id) REFERENCES marketing_action_briefs(action_brief_id)
+                );
+
+                CREATE TABLE IF NOT EXISTS weekly_digests (
+                    digest_id TEXT PRIMARY KEY,
+                    period_start TEXT NOT NULL,
+                    period_end TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    sections TEXT NOT NULL DEFAULT '{}',
+                    change_ids TEXT NOT NULL DEFAULT '[]',
+                    evidence_ids TEXT NOT NULL DEFAULT '[]',
+                    created_at TEXT NOT NULL,
+                    is_synthetic INTEGER NOT NULL DEFAULT 0
+                );
+
                 CREATE INDEX IF NOT EXISTS idx_feed_date ON feed_events(event_date DESC);
                 CREATE INDEX IF NOT EXISTS idx_feed_vendor ON feed_events(vendor_id);
                 CREATE INDEX IF NOT EXISTS idx_feed_type ON feed_events(event_type);
@@ -380,6 +441,12 @@ class Database:
                 CREATE INDEX IF NOT EXISTS idx_benchmark_task ON benchmark_runs(manifest_task_id);
                 CREATE INDEX IF NOT EXISTS idx_benchmark_status
                     ON benchmark_runs(run_status, comparability_status);
+                CREATE INDEX IF NOT EXISTS idx_changes_vendor
+                    ON competitor_changes(vendor_id, detected_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_changes_significance
+                    ON competitor_changes(significance, detected_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_content_action_brief
+                    ON content_opportunities(action_brief_id);
                 """
             )
             connection.execute(
@@ -423,6 +490,11 @@ class Database:
         """
         with self.connect() as connection:
             connection.execute("DELETE FROM schema_metadata WHERE key = 'phase4_demo_seeded'")
+            connection.execute("DELETE FROM schema_metadata WHERE key = 'phase7_demo_seeded'")
+            connection.execute("DELETE FROM content_opportunities")
+            connection.execute("DELETE FROM marketing_action_briefs")
+            connection.execute("DELETE FROM weekly_digests")
+            connection.execute("DELETE FROM competitor_changes")
             connection.execute("DELETE FROM benchmark_runs")
             connection.execute("DELETE FROM audit_events")
             connection.execute("DELETE FROM usage_events")
@@ -449,6 +521,11 @@ class Database:
         """Clear only generated Phase 3 data, preserving Phase 2 Vendors/Evidence."""
         with self.connect() as connection:
             connection.execute("DELETE FROM schema_metadata WHERE key = 'phase4_demo_seeded'")
+            connection.execute("DELETE FROM schema_metadata WHERE key = 'phase7_demo_seeded'")
+            connection.execute("DELETE FROM content_opportunities")
+            connection.execute("DELETE FROM marketing_action_briefs")
+            connection.execute("DELETE FROM weekly_digests")
+            connection.execute("DELETE FROM competitor_changes")
             connection.execute("DELETE FROM benchmark_runs")
             connection.execute("DELETE FROM audit_events")
             connection.execute("DELETE FROM usage_events")

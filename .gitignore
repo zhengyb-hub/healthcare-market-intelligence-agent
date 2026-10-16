@@ -13,6 +13,7 @@ data/*.db
 .streamlit/secrets.toml
 
 generated_reports/
+outputs/
 *.log
 .agents/
 .codex/

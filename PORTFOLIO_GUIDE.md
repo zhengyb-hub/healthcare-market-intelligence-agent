@@ -15,10 +15,10 @@ The final portfolio release demonstrates the full Evidence → Decision workflow
 | Dimension | Portfolio evidence |
 |---|---|
 | Problem | Fragmented healthcare IT research, weak source traceability, inconsistent reuse across marketing and sales |
-| Product | Streamlit decision workspace with Vendor, Evidence, Market, Brief, Review, and Analytics workflows |
+| Product | Streamlit decision workspace with Vendor, Evidence, Market, Activation, Brief, Review, and Analytics workflows |
 | AI role | Optional structured intelligence generation constrained by Evidence Packs and post-generation validation |
 | Human role | Claim and Brief review, revision, approval, and finalisation |
-| Data | Additive SQLite schema v5.0 with typed repositories and synthetic provenance |
+| Data | Additive SQLite schema v6.0 with typed repositories and synthetic provenance |
 | Evaluation | Reproducible snapshot, integrity checks, AppTest, E2E workflows, metric audit, and honest Benchmark gating |
 
 ## Recommended demo path

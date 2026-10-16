@@ -17,17 +17,19 @@ flowchart TB
         INTELLIGENCE["Evidence Pack / AI / Claims / Briefs"]
         WORKFLOW["Feed / Watchlist / Market Map / Opportunities / Review"]
         ANALYTICS["Analytics / Benchmark / Evaluation"]
+        ACTIVATION["Competitor Changes / Marketing Activation / Digest"]
         EXPORT["Markdown / JSON / CSV"]
     end
 
     subgraph Persistence
-        REPOSITORIES["Typed Repositories"] --> SQLITE["SQLite schema v5.0"]
+        REPOSITORIES["Typed Repositories"] --> SQLITE["SQLite schema v6.0"]
     end
 
     UI --> FOUNDATION
     UI --> INTELLIGENCE
     UI --> WORKFLOW
     UI --> ANALYTICS
+    UI --> ACTIVATION
     UI --> EXPORT
     FOUNDATION --> QUALITY
     QUALITY --> REPOSITORIES
@@ -35,6 +37,7 @@ flowchart TB
     INTELLIGENCE --> REPOSITORIES
     WORKFLOW --> REPOSITORIES
     ANALYTICS --> REPOSITORIES
+    ACTIVATION --> REPOSITORIES
     EXPORT --> REPOSITORIES
 ```
 
@@ -80,6 +83,8 @@ flowchart LR
 | `src/healthcare/intelligence_repositories.py` | Intelligence persistence |
 | `src/healthcare/workflow_repositories.py` | Operational workflow persistence |
 | `src/healthcare/analytics_repositories.py` | Benchmark persistence |
+| `src/healthcare/activation_repositories.py` | Change, action-brief, content, and digest persistence |
+| `src/healthcare/activation_services.py` | Evidence-to-evidence change detection and grounded marketing outputs |
 | `src/healthcare/services.py` | Vendor and Evidence application rules |
 | `src/healthcare/intelligence_services.py` | Vendor intelligence, comparisons, and Brief generation |
 | `src/healthcare/traceability_service.py` | Evidence-Pack-scoped citation and Claim validation |

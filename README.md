@@ -1,6 +1,6 @@
 # AI-Powered Healthcare Market Intelligence Agent
 
-> Public product release `1.1.0`
+> Portfolio product release `1.2.0`
 
 An evidence-grounded competitor intelligence workspace designed for healthcare IT marketing, market intelligence, and sales enablement workflows.
 
@@ -37,6 +37,8 @@ Claims are also classified as `SUPPORTED`, `PARTIALLY_SUPPORTED`, or `UNSUPPORTE
 - Healthcare IT Vendor Library and evidence-backed Vendor profiles
 - Evidence Library with validation, deduplication, authority, quality, and freshness
 - Intelligence Feed and Vendor Watchlist
+- Evidence-to-evidence competitor change detection with preserved source IDs
+- Marketing Action Briefs, channel-native content opportunities, and weekly intelligence digests
 - Vendor × Solution Category Market Map
 - Structured comparison of 2–5 Vendors
 - Evidence-based Opportunity Finder
@@ -47,7 +49,7 @@ Claims are also classified as `SUPPORTED`, `PARTIALLY_SUPPORTED`, or `UNSUPPORTE
 - SQLite persistence, usage logging, and audit trail
 - Analytics and an honest paired-workflow Benchmark workspace
 - Deterministic Demo Mode with no API key required
-- GitHub Actions validation
+- GitHub Actions validation and a scheduled, reviewable digest artifact
 
 ## Product Experience
 
@@ -61,6 +63,10 @@ Version 1.1 introduces a workflow-led intelligence workspace informed by establi
 
 The product-pattern benchmark and implementation decisions are documented in [PRODUCT_BENCHMARK.md](PRODUCT_BENCHMARK.md).
 
+Version 1.2 adds an Evidence-to-Activation path. Change detection compares successive validated records; the resulting signals support draft marketing briefs, LinkedIn/short-video/email/sales content opportunities, and a weekly digest. These are synthetic evaluation outputs and require human review, not verified real-world market changes.
+
+Validation details are in [RELEASE_CHECKLIST_1_2.md](RELEASE_CHECKLIST_1_2.md).
+
 ## Product Workflow
 
 ```mermaid
@@ -73,19 +79,23 @@ flowchart LR
     F --> G["Human Review"]
     G --> H["Brief"]
     H --> I["Decision Support"]
+    B --> J["Change Detection"]
+    J --> K["Marketing Action Brief"]
+    K --> L["Channel Content & Weekly Digest"]
 ```
 
 ## Screens / Modules
 
-The final information architecture uses nine primary workspaces:
+The information architecture uses ten primary workspaces:
 
 | Workspace | Purpose |
 |---|---|
 | Overview | Monitored scope, material changes, watchlist status, quality, and required action |
-| Intelligence | Compact Feed and priority Vendor Watchlist |
+| Intelligence | Compact Feed, priority Vendor Watchlist, and competitor changes |
 | Vendors | Searchable Vendor library, profile detail, Evidence timeline, and intelligence generation |
 | Evidence | Search, filters, validation/quality detail, related Claims, and import |
 | Market | Market Map, structured Vendor comparison, and evidence-based opportunities |
+| Activation | Marketing Action Briefs, content opportunities, and weekly digests |
 | Briefs | Competitor, Executive, and Sales Enablement output libraries |
 | Review | Focused Brief, Claim, and Evidence work queues |
 | Analytics | Coverage, quality, output, workflow, and Benchmark evaluation |
@@ -102,12 +112,14 @@ flowchart TB
     SERVICES --> INTEL["Intelligence & Brief Services"]
     SERVICES --> TRACE["Traceability & Review"]
     SERVICES --> ANALYTICS["Analytics & Benchmark"]
+    SERVICES --> ACTIVATION["Change Detection & Marketing Activation"]
     SERVICES --> EXPORT["Markdown / JSON / CSV Export"]
     FOUNDATION --> REPOS["Typed Repositories"]
     INTEL --> REPOS
     TRACE --> REPOS
     ANALYTICS --> REPOS
-    REPOS --> DB["SQLite v5.0"]
+    ACTIVATION --> REPOS
+    REPOS --> DB["SQLite v6.0"]
     INGEST["Pasted Text / CSV / JSON"] --> FOUNDATION
     AI["OpenAI or Deterministic Fallback"] --> INTEL
 ```
@@ -123,8 +135,9 @@ The additive SQLite schema stores:
 - Feed events, Watchlist entries, Opportunities, and duplicate groups
 - Brief reviews, review notes, saved comparisons, Executive Briefs, and Sales outputs
 - Usage events, audit events, schema metadata, and Benchmark runs
+- Competitor changes, Marketing Action Briefs, content opportunities, and weekly digests
 
-The current schema version is `5.0`. IDs, references, taxonomy values, hashes, dates, statuses, duplicate links, citation scope, and Vendor metrics are checked by `scripts/check_data_integrity.py`.
+The current schema version is `6.0`. IDs, references, taxonomy values, hashes, dates, statuses, duplicate links, citation scope, activation links, and Vendor metrics are checked by `scripts/check_data_integrity.py`.
 
 ## Claim Traceability
 
@@ -249,6 +262,14 @@ python scripts/check_data_integrity.py
 
 `scripts/run_evaluation.py` measures automated stages and saves DRAFT AI rows. It does not fabricate manual research, human review, or editing time.
 
+To create a reviewable synthetic marketing digest after seeding the demo data:
+
+```powershell
+python scripts/run_marketing_activation.py --lookback 30
+```
+
+The weekly GitHub Actions workflow produces an artifact from synthetic demo records. It does not send campaigns, publish posts, or collect live market evidence.
+
 ## Testing
 
 ```powershell
@@ -256,7 +277,7 @@ python -m unittest discover -s tests -v
 python scripts/check_data_integrity.py
 ```
 
-The suite covers unit, integration, product workflow, traceability, export, Analytics, Benchmark, Demo Mode, no-API-key operation, and all primary Streamlit workspaces.
+The suite covers unit, integration, product workflow, traceability, export, Analytics, Benchmark, Marketing Activation, Demo Mode, no-API-key operation, and all primary Streamlit workspaces.
 
 ## Export
 
@@ -278,12 +299,14 @@ Exports reuse the stored Brief and Evidence identities; they do not rerun genera
 - No CRM, authentication, or role-based access control
 - SQLite and local Streamlit deployment are portfolio-scale choices
 - Model output still requires human review before decision use
+- Detected changes compare records in the monitored synthetic dataset and are not independently verified market events
+- Marketing drafts and channel opportunities are not evidence of actual campaign performance
 - Manual efficiency Benchmark not completed
 - Portfolio screenshots should be captured from the deterministic Demo state using the included guide
 
 ## Future Roadmap
 
-Phase 6 follows `POLISH > EXPAND`; new core features were not added. Deferred ideas are documented in [FUTURE_ROADMAP.md](FUTURE_ROADMAP.md).
+The 1.1 interface polish remains the foundation; 1.2 adds the bounded Evidence-to-Activation workflow. Deferred ideas are documented in [FUTURE_ROADMAP.md](FUTURE_ROADMAP.md).
 
 ## Portfolio Context
 

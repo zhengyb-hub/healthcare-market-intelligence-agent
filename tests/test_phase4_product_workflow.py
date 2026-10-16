@@ -138,7 +138,7 @@ class Phase4ProductWorkflowTests(unittest.TestCase):
             version = connection.execute(
                 "SELECT value FROM schema_metadata WHERE key = 'schema_version'"
             ).fetchone()[0]
-        self.assertEqual(version, "5.0")
+        self.assertEqual(version, "6.0")
 
     def test_watchlist_add_remove_and_real_update_detection(self) -> None:
         vendor = self.vendors[0]

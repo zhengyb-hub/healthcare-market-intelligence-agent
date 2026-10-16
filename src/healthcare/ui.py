@@ -11,6 +11,7 @@ import re
 import pandas as pd
 import streamlit as st
 
+from .activation_services import ACTIVATION_CHANNELS
 from .bootstrap import DEFAULT_DATABASE_PATH, bootstrap_product_workflow
 from .enums import (
     FEED_EVENT_TYPES,
@@ -48,12 +49,13 @@ PRIMARY_NAVIGATION = (
     "Vendors",
     "Evidence",
     "Market",
+    "Activation",
     "Briefs",
     "Review",
     "Analytics",
     "Settings",
 )
-PORTFOLIO_VERSION = "1.1.0"
+PORTFOLIO_VERSION = "1.2.0"
 
 UI_ZH = {
     "Overview": "概览",
@@ -61,12 +63,14 @@ UI_ZH = {
     "Vendors": "竞品库",
     "Evidence": "证据库",
     "Market": "市场分析",
+    "Activation": "营销行动",
     "Briefs": "简报",
     "Review": "审核",
     "Analytics": "数据分析",
     "Settings": "设置",
     "Feed": "情报流",
     "Watchlist": "关注列表",
+    "Changes": "竞品变化",
     "Market Map": "市场地图",
     "Compare": "竞品对比",
     "Opportunities": "机会点",
@@ -1410,6 +1414,78 @@ def render_watchlist(foundation, workflow, by_id: dict[str, str]) -> None:
         _refresh()
 
 
+def render_competitor_changes(foundation, workflow) -> None:
+    section_header("竞品变化检测", "逐条对比来源证据")
+    st.caption(
+        "系统对比连续的已验证记录，并保留两条证据 ID。"
+        "检测结果是待审核的信号，不代表已独立证实的市场结论。"
+    )
+    vendors = foundation.vendor_service.list_vendors()
+    vendor_labels = {vendor.vendor_name: vendor.vendor_id for vendor in vendors}
+    selected_names = st.multiselect(
+        "选择要扫描的竞品",
+        list(vendor_labels),
+        default=list(vendor_labels)[:3],
+        key="change_scan_vendors",
+    )
+    if st.button("运行证据变化扫描", type="primary"):
+        with st.spinner("正在对比已验证的证据……"):
+            workflow.change_detection_service.scan(
+                [vendor_labels[name] for name in selected_names]
+            )
+        _refresh()
+    significance = st.radio(
+        "重要程度",
+        ["All", "HIGH", "MEDIUM", "LOW"],
+        format_func=_zh,
+        horizontal=True,
+        key="change_significance",
+    )
+    changes = workflow.change_repository.list_all(
+        vendor_ids=[vendor_labels[name] for name in selected_names] or None,
+        significance="" if significance == "All" else significance,
+        limit=100,
+    )
+    if not changes:
+        empty_state(
+            "暂无变化信号",
+            "每个竞品至少需要两条已验证证据才能比较。",
+            "请选择竞品并运行证据变化扫描。",
+        )
+        return
+    names_by_id = {value: key for key, value in vendor_labels.items()}
+    st.dataframe(
+        pd.DataFrame([
+            {
+                "竞品": names_by_id.get(item.vendor_id, item.vendor_id),
+                "变化类型": _zh(item.change_type.replace("_", " ").title()),
+                "重要程度": _zh(item.significance),
+                "关联证据": len(item.evidence_ids),
+                "检测时间": _format_datetime_zh(item.detected_at),
+            }
+            for item in changes
+        ]),
+        hide_index=True,
+        width="stretch",
+    )
+    labels = {
+        f"{item.headline} · {item.detected_at[:10]}": item
+        for item in changes
+    }
+    selected = labels[st.selectbox("查看变化", list(labels), key="open_change")]
+    st.markdown(
+        status_badge(selected.significance) + " " + status_badge(selected.status),
+        unsafe_allow_html=True,
+    )
+    before, after = st.columns(2, gap="large")
+    with before:
+        info_card("前一条证据", _zh_text(selected.before_text), selected.evidence_ids[0])
+    with after:
+        info_card("最新证据", _zh_text(selected.after_text), selected.evidence_ids[-1])
+    with st.expander("查看支持证据", expanded=False):
+        for evidence_id in selected.evidence_ids:
+            _render_evidence_citation(foundation, evidence_id)
+
 def render_market_map(foundation, workflow, by_id: dict[str, str]) -> None:
     section_header("医疗信息化市场地图", "竞品 × 方案类别")
     st.caption("单元格仅统计已验证且非重复的证据；不使用大模型进行分类。")
@@ -2225,6 +2301,215 @@ def render_comparison(foundation, intelligence, workflow) -> None:
         empty_state("暂无已保存的竞品对比", "竞品对比需要 2–5 家竞品及符合条件的证据包。", "请选择竞品并生成对比。")
 
 
+def _render_activation_sections(sections: dict[str, list]) -> None:
+    section_names = {
+        "Competitive Signals": "竞品变化信号",
+        "Content Gaps": "内容空白",
+        "Differentiation Angle": "差异化角度",
+        "Campaign Big Idea": "传播核心创意",
+        "Content Pillars": "内容支柱",
+        "Channel Plan": "渠道计划",
+        "Claims To Avoid": "应避免的表述",
+        "30-Day Action Plan": "30 天行动计划",
+        "Evidence Scope": "证据范围",
+    }
+    for title, entries in sections.items():
+        with st.container(border=True):
+            st.markdown(f"#### {section_names.get(title, _zh_text(title))}")
+            for entry in entries:
+                if isinstance(entry, dict):
+                    st.markdown(
+                        "  \n".join(
+                            f"**{_zh(key.replace('_', ' ').title())}:** "
+                            f"{_zh_text(', '.join(value) if isinstance(value, list) else value)}"
+                            for key, value in entry.items()
+                        )
+                    )
+                else:
+                    st.markdown(f"- {_zh_text(entry)}")
+
+
+def render_marketing_activation(foundation, workflow) -> None:
+    page_header(
+        "从信号到行动",
+        "营销行动工作区",
+        "基于可追溯的竞品证据，形成营销简报、渠道内容机会和可审核的情报摘要。",
+    )
+    view = st.radio(
+        "营销行动工作区",
+        ["Action Briefs", "Content Opportunities", "Weekly Digest"],
+        format_func=lambda value: {
+            "Action Briefs": "营销行动简报",
+            "Content Opportunities": "内容机会",
+            "Weekly Digest": "每周情报摘要",
+        }[value],
+        horizontal=True,
+        label_visibility="collapsed",
+        key="activation_workspace",
+    )
+    vendors = foundation.vendor_service.list_vendors()
+    vendor_labels = {vendor.vendor_name: vendor.vendor_id for vendor in vendors}
+
+    if view == "Action Briefs":
+        briefs = workflow.marketing_action_repository.list_all()
+        section_header("营销行动简报", "有来源依据的策略，而非泛化文案")
+        with st.expander("创建营销行动简报", expanded=not bool(briefs)):
+            with st.form("activation_brief_form"):
+                selected_names = st.multiselect(
+                    "竞品",
+                    list(vendor_labels),
+                    default=list(vendor_labels)[:3],
+                )
+                left, right = st.columns(2)
+                target_brand = left.text_input("目标品牌", value="Northstar Health Intelligence")
+                audience = right.text_input(
+                    "目标受众",
+                    value="Hospital CIOs and healthcare digital-transformation leaders",
+                )
+                objective = st.text_input(
+                    "营销目标",
+                    value="Build an evidence-led demand-generation campaign",
+                )
+                channels = st.multiselect(
+                    "渠道",
+                    list(ACTIVATION_CHANNELS),
+                    default=["LinkedIn", "Short Video", "Email", "Sales Enablement"],
+                )
+                submitted = st.form_submit_button("生成营销行动简报", type="primary")
+        if submitted:
+            try:
+                with st.spinner("正在关联竞品变化、证据与营销行动……"):
+                    workflow.marketing_action_service.create(
+                        [vendor_labels[name] for name in selected_names],
+                        objective,
+                        audience,
+                        channels,
+                        target_brand,
+                    )
+                _refresh()
+            except ValueError as exc:
+                error_state(
+                    "无法生成营销行动简报",
+                    "请检查竞品、营销目标、受众和渠道选择。",
+                    str(exc),
+                )
+        if not briefs:
+            empty_state(
+                "暂无营销行动简报",
+                "简报将竞品证据与营销应对方案连接起来。",
+                "请填写上方表单创建第一份简报。",
+            )
+            return
+        st.dataframe(
+            pd.DataFrame([
+                {
+                    "标题": _zh_text(item.title),
+                    "目标": _zh_text(item.objective),
+                    "渠道": len(item.channels),
+                    "证据": len(item.evidence_ids),
+                    "变化": len(item.change_ids),
+                    "状态": _zh(item.status),
+                    "创建时间": _format_datetime_zh(item.created_at),
+                }
+                for item in briefs
+            ]),
+            hide_index=True,
+            width="stretch",
+        )
+        labels = {
+            f"{item.title} · {item.created_at[:19]}": item
+            for item in briefs
+        }
+        item = labels[st.selectbox("查看行动简报", list(labels), key="open_action_brief")]
+        section_header(_zh_text(item.title), f"{_zh_text(item.objective)} · {_zh_text(item.audience)}")
+        metrics = st.columns(4)
+        metrics[0].metric("竞品", len(item.vendor_ids))
+        metrics[1].metric("证据", len(item.evidence_ids))
+        metrics[2].metric("检测到的变化", len(item.change_ids))
+        metrics[3].metric("渠道", len(item.channels))
+        _render_activation_sections(item.sections)
+        st.download_button(
+            "下载行动简报",
+            workflow.marketing_action_service.markdown(item),
+            file_name=f"{item.action_brief_id}.md",
+            mime="text/markdown",
+        )
+        with st.expander("证据范围", expanded=False):
+            st.markdown("\n".join(f"- `{evidence_id}`" for evidence_id in item.evidence_ids))
+        return
+
+    if view == "Content Opportunities":
+        section_header("内容机会", "按渠道呈现创意方向，并保留证据 ID")
+        opportunities = workflow.content_opportunity_repository.list_all()
+        if not opportunities:
+            empty_state(
+                "暂无内容机会",
+                "内容机会由营销行动简报生成。",
+                "请先创建一份行动简报。",
+            )
+            return
+        channel_options = ["All", *sorted({item.channel for item in opportunities})]
+        channel = st.radio(
+            "渠道",
+            channel_options,
+            format_func=_zh,
+            horizontal=True,
+            key="content_channel_filter",
+        )
+        filtered = [
+            item for item in opportunities
+            if channel == "All" or item.channel == channel
+        ]
+        for item in filtered:
+            with st.container(border=True):
+                header, meta = st.columns([3, 1])
+                header.markdown(f"### {_zh_text(item.title)}")
+                meta.markdown(status_badge(item.status), unsafe_allow_html=True)
+                st.caption(f"{_zh(item.content_format)} · {_zh_text(item.audience)}")
+                st.markdown(f"**开场钩子**  \n{_zh_text(item.hook)}")
+                st.markdown(f"**创意角度**  \n{_zh_text(item.angle)}")
+                st.markdown(f"**行动引导**  \n{_zh_text(item.cta)}")
+                st.caption(
+                    f"依据：{len(item.evidence_ids)} 条证据 · "
+                    f"{len(item.source_change_ids)} 条检测到的变化"
+                )
+                with st.expander("来源 ID", expanded=False):
+                    st.markdown(
+                        "**证据**  \n" + "\n".join(
+                            f"- `{evidence_id}`" for evidence_id in item.evidence_ids
+                        )
+                    )
+        return
+
+    section_header("每周情报摘要", "变化、影响与下一步行动")
+    lookback = st.selectbox("摘要时间范围", [7, 30, 90, 365], index=1, format_func=lambda value: f"最近 {value} 天")
+    if st.button("生成情报摘要", type="primary"):
+        with st.spinner("正在汇总变化和有证据支持的内容机会……"):
+            workflow.weekly_digest_service.create(int(lookback))
+        _refresh()
+    digests = workflow.weekly_digest_repository.list_all()
+    if not digests:
+        empty_state(
+            "暂无情报摘要",
+            "摘要汇总检测到的变化及其支持的行动。",
+            "请点击上方按钮生成第一份摘要。",
+        )
+        return
+    labels = {f"{item.title} · {item.period_start} to {item.period_end}": item for item in digests}
+    item = labels[st.selectbox("查看摘要", list(labels), key="open_digest")]
+    section_header(_zh_text(item.title), f"时间范围：{_format_datetime_zh(item.period_start)} 至 {_format_datetime_zh(item.period_end)}")
+    metrics = st.columns(3)
+    metrics[0].metric("变化", len(item.change_ids))
+    metrics[1].metric("证据", len(item.evidence_ids))
+    metrics[2].metric("章节", len(item.sections))
+    _render_activation_sections(item.sections)
+    st.download_button(
+        "下载情报摘要",
+        workflow.weekly_digest_service.markdown(item),
+        file_name=f"{item.digest_id}.md",
+        mime="text/markdown",
+    )
+
 def render_briefs_and_claims(foundation, intelligence, workflow) -> None:
     page_header(
         "情报输出",
@@ -2543,7 +2828,7 @@ def run_healthcare_app(database_path: str | Path = DEFAULT_DATABASE_PATH) -> Non
             )
             view = st.radio(
                 "情报动态工作区",
-                ["Feed", "Watchlist"],
+                ["Feed", "Watchlist", "Changes"],
                 format_func=_zh,
                 horizontal=True,
                 label_visibility="collapsed",
@@ -2551,8 +2836,10 @@ def run_healthcare_app(database_path: str | Path = DEFAULT_DATABASE_PATH) -> Non
             )
             if view == "Feed":
                 render_intelligence_feed(foundation, workflow, by_id)
-            else:
+            elif view == "Watchlist":
                 render_watchlist(foundation, workflow, by_id)
+            else:
+                render_competitor_changes(foundation, workflow)
         elif navigation == "Vendors":
             render_vendor_library(foundation, intelligence, workflow, by_id)
         elif navigation == "Evidence":
@@ -2577,6 +2864,8 @@ def run_healthcare_app(database_path: str | Path = DEFAULT_DATABASE_PATH) -> Non
                 render_comparison(foundation, intelligence, workflow)
             else:
                 render_opportunities(foundation, workflow)
+        elif navigation == "Activation":
+            render_marketing_activation(foundation, workflow)
         elif navigation == "Briefs":
             render_briefs_and_claims(foundation, intelligence, workflow)
         elif navigation == "Review":

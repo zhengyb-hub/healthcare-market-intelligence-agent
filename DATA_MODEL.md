@@ -24,7 +24,7 @@ Basic Claim review state is stored on Claim. Full review history is stored in Ph
 
 SQLite database: `data/healthcare_intelligence.db`
 
-Schema version: `4.0`, recorded in `schema_metadata`.
+Current schema version: `6.0`, recorded in `schema_metadata`. Earlier sections below document the additive Phase 2–5 foundation; Phase 7 adds marketing-activation tables and reference checks.
 
 Tables:
 

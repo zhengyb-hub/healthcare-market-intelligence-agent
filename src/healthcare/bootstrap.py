@@ -4,6 +4,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .activation_repositories import (
+    CompetitorChangeRepository,
+    ContentOpportunityRepository,
+    MarketingActionBriefRepository,
+    WeeklyDigestRepository,
+)
+from .activation_services import (
+    ChangeDetectionService,
+    MarketingActionBriefService,
+    WeeklyDigestService,
+)
 from .database import Database
 from .analytics_repositories import BenchmarkRepository
 from .analytics_service import AnalyticsService, BenchmarkService
@@ -198,6 +209,10 @@ def build_product_workflow_services(
     sales_enablement_repository = SalesEnablementRepository(database)
     usage_repository = UsageRepository(database)
     audit_repository = AuditRepository(database)
+    change_repository = CompetitorChangeRepository(database)
+    marketing_action_repository = MarketingActionBriefRepository(database)
+    content_opportunity_repository = ContentOpportunityRepository(database)
+    weekly_digest_repository = WeeklyDigestRepository(database)
     usage_service = UsageService(usage_repository)
     audit_service = AuditService(audit_repository)
     event_service = WorkflowEventService(
@@ -261,6 +276,27 @@ def build_product_workflow_services(
         DEFAULT_EVALUATION_MANIFEST_PATH,
     )
     analytics_service = AnalyticsService(database, benchmark_service, quality_service)
+    change_detection_service = ChangeDetectionService(
+        change_repository,
+        foundation.evidence_service.evidence_repository,
+        foundation.vendor_service.repository,
+    )
+    marketing_action_service = MarketingActionBriefService(
+        marketing_action_repository,
+        content_opportunity_repository,
+        change_repository,
+        change_detection_service,
+        foundation.evidence_service.evidence_repository,
+        foundation.vendor_service.repository,
+        foundation.category_repository,
+    )
+    weekly_digest_service = WeeklyDigestService(
+        weekly_digest_repository,
+        change_repository,
+        change_detection_service,
+        content_opportunity_repository,
+        foundation.vendor_service.repository,
+    )
     foundation.vendor_service.event_handler = event_service
     foundation.evidence_service.event_handler = event_service
     intelligence.claim_service.event_handler = event_service
@@ -289,6 +325,13 @@ def build_product_workflow_services(
         audit_repository=audit_repository,
         benchmark_service=benchmark_service,
         analytics_service=analytics_service,
+        change_detection_service=change_detection_service,
+        marketing_action_service=marketing_action_service,
+        weekly_digest_service=weekly_digest_service,
+        change_repository=change_repository,
+        marketing_action_repository=marketing_action_repository,
+        content_opportunity_repository=content_opportunity_repository,
+        weekly_digest_repository=weekly_digest_repository,
     )
 
 
@@ -306,6 +349,8 @@ def bootstrap_product_workflow(
     workflow = build_product_workflow_services(foundation, intelligence)
     if seed_workflow_demo:
         from .demo_workflow_seed import seed_phase4_demo
+        from .demo_activation_seed import seed_activation_demo
 
         seed_phase4_demo(foundation, intelligence, workflow)
+        seed_activation_demo(foundation, workflow)
     return foundation, intelligence, workflow
