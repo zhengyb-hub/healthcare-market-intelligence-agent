@@ -14,9 +14,11 @@ from src.healthcare.integrity import run_integrity_checks
 from src.healthcare.ui import (
     PORTFOLIO_VERSION,
     PRIMARY_NAVIGATION,
+    _format_datetime_zh,
     _matches_signal,
     _readiness_rates,
     _signal_priority,
+    _zh_text,
 )
 
 
@@ -100,6 +102,20 @@ class Phase6ProductisationTests(unittest.TestCase):
         self.assertTrue(_matches_signal(event, "regional", "BluePeak HealthTech"))
         self.assertTrue(_matches_signal(event, "bluepeak", "BluePeak HealthTech"))
         self.assertFalse(_matches_signal(event, "case study", "BluePeak HealthTech"))
+
+    def test_chinese_display_helpers_localise_demo_signals_and_dates(self) -> None:
+        self.assertEqual(
+            _zh_text(
+                "Synthetic public procurement signal for BluePeak HealthTech; "
+                "demonstration use only."
+            ),
+            "BluePeak HealthTech 的模拟公开采购动态，仅用于演示。",
+        )
+        self.assertEqual(_format_datetime_zh("2026-08-12"), "2026年08月12日")
+        self.assertEqual(
+            _format_datetime_zh("2026-08-12T02:25:59+00:00"),
+            "2026年08月12日 02:25",
+        )
 
     def test_e2e_demo_claim_evidence_and_export(self) -> None:
         briefs = self.intelligence.brief_repository.list_all()

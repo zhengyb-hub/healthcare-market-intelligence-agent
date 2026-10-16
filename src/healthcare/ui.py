@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+from datetime import datetime
 import os
 from pathlib import Path
 import re
@@ -223,6 +224,21 @@ def _zh_text(value: object) -> str:
     )
     for source, target in replacements:
         shown = shown.replace(source, target)
+    synthetic_signal = re.fullmatch(
+        r"Synthetic (hospital case study|tender announcement|public procurement|solution update) "
+        r"signal for (.+?); demonstration use only\.",
+        shown,
+        flags=re.IGNORECASE,
+    )
+    if synthetic_signal:
+        signal_names = {
+            "hospital case study": "医院案例",
+            "tender announcement": "招标公告",
+            "public procurement": "公开采购",
+            "solution update": "产品更新",
+        }
+        signal_type = signal_names[synthetic_signal.group(1).lower()]
+        return f"{synthetic_signal.group(2)} 的模拟{signal_type}动态，仅用于演示。"
     shown = shown.replace(
         "No binary coverage gap is detected; a quality/freshness gap may still exist and requires record-level assessment.",
         "未发现明确的覆盖缺口，但仍可能存在质量或时效性问题，需要逐条核查记录。",
@@ -314,6 +330,37 @@ def _category_maps(foundation):
 
 def _category_names(category_ids: list[str], by_id: dict[str, str]) -> str:
     return "、".join(_zh(by_id.get(item, item)) for item in category_ids)
+
+
+def _format_datetime_zh(value: object, *, include_time: bool | None = None) -> str:
+    """Render stored ISO dates in a compact Chinese business format."""
+    shown = str(value or "").strip()
+    if not shown:
+        return "—"
+    try:
+        parsed = datetime.fromisoformat(shown.replace("Z", "+00:00"))
+    except ValueError:
+        return shown
+    show_time = include_time if include_time is not None else "T" in shown
+    if show_time:
+        return parsed.strftime("%Y年%m月%d日 %H:%M")
+    return parsed.strftime("%Y年%m月%d日")
+
+
+def _clear_feed_filters() -> None:
+    defaults = {
+        "feed_search": "",
+        "feed_scope": "All signals",
+        "feed_sort": "Priority first",
+        "feed_vendor": "All",
+        "feed_event_type": "All",
+        "feed_importance": "All",
+        "feed_category": "All",
+        "feed_source": "All",
+        "feed_from": None,
+    }
+    for key, value in defaults.items():
+        st.session_state[key] = value
 
 
 def _refresh() -> None:
@@ -550,7 +597,7 @@ def render_overview(foundation, intelligence, workflow, by_id: dict[str, str]) -
             signal_card(
                 _zh_text(event.title),
                 _zh_text(event.summary) or "暂无补充摘要。",
-                f"{event.event_date} · {vendor} · {_zh(event.source_type or event.event_type)}",
+                f"{_format_datetime_zh(event.event_date)} · {vendor} · {_zh(event.source_type or event.event_type)}",
                 event.importance,
             )
     with right:
@@ -1166,8 +1213,12 @@ def render_intelligence_feed(foundation, workflow, by_id: dict[str, str]) -> Non
     with st.expander("高级筛选", expanded=False):
         filters = st.columns(3)
         vendor_name = filters[0].selectbox("竞品", list(vendor_options), format_func=_zh, key="feed_vendor")
-        event_type = filters[1].selectbox("事件类型", ["All", *FEED_EVENT_TYPES], format_func=_zh)
-        importance = filters[2].selectbox("重要程度", ["All", *IMPORTANCE_LEVELS], format_func=_zh)
+        event_type = filters[1].selectbox(
+            "事件类型", ["All", *FEED_EVENT_TYPES], format_func=_zh, key="feed_event_type"
+        )
+        importance = filters[2].selectbox(
+            "重要程度", ["All", *IMPORTANCE_LEVELS], format_func=_zh, key="feed_importance"
+        )
         filters2 = st.columns(3)
         category_name = filters2[0].selectbox(
             "方案类别", list(category_options), format_func=_zh, key="feed_category"
@@ -1176,6 +1227,7 @@ def render_intelligence_feed(foundation, workflow, by_id: dict[str, str]) -> Non
             "来源类型", ["All", *SOURCE_TYPES], format_func=_zh, key="feed_source"
         )
         date_from = filters2[2].date_input("起始日期", value=None, key="feed_from")
+        st.button("清空筛选", on_click=_clear_feed_filters, key="feed_clear_filters")
     events = workflow.feed_repository.list_all(
         vendor_id=vendor_options[vendor_name],
         event_type="" if event_type == "All" else event_type,
@@ -1234,7 +1286,15 @@ def render_intelligence_feed(foundation, workflow, by_id: dict[str, str]) -> Non
             "可打开底层来源记录",
         )
 
-    st.caption(f"共找到 {len(events)} 条动态 · {_zh(sort_order)} · 最多显示 20 条")
+    result_cols = st.columns([3, 1])
+    result_cols[0].caption(f"共找到 {len(events)} 条动态 · {_zh(sort_order)}")
+    display_limit = result_cols[1].selectbox(
+        "显示数量",
+        [20, 50, 100],
+        key="feed_display_limit",
+        label_visibility="collapsed",
+        format_func=lambda value: f"显示 {value} 条",
+    )
     if not events:
         empty_state(
             "没有符合条件的情报动态",
@@ -1242,11 +1302,11 @@ def render_intelligence_feed(foundation, workflow, by_id: dict[str, str]) -> Non
             "请调整查看范围或新增证据。",
         )
         return
-    for event in events[:20]:
+    for event in events[:display_limit]:
         signal_card(
             _zh_text(event.title),
             _zh_text(event.summary) or "暂无补充摘要。",
-            f"{event.event_date} · {vendor_names.get(event.vendor_id, '全局')} · "
+            f"{_format_datetime_zh(event.event_date)} · {vendor_names.get(event.vendor_id, '全局')} · "
             f"{_zh(event.source_type or event.event_type)}",
             event.importance,
         )
@@ -1310,12 +1370,12 @@ def render_watchlist(foundation, workflow, by_id: dict[str, str]) -> None:
                 "证据数量": item["evidence_count"],
                 "新增证据": item["new_evidence_since_last_view"],
                 "最近招投标": (
-                    item["latest_procurement_signal"].publication_date
+                    _format_datetime_zh(item["latest_procurement_signal"].publication_date)
                     if item["latest_procurement_signal"] else ""
                 ),
-                "最近简报": item["latest_brief"].title if item["latest_brief"] else "",
+                "最近简报": _zh_text(item["latest_brief"].title) if item["latest_brief"] else "",
                 "时效状态": "需要更新" if item["freshness"]["needs_intelligence_refresh"] else "最新",
-                "最近情报更新": item["latest_intelligence_update"],
+                "最近情报更新": _format_datetime_zh(item["latest_intelligence_update"]),
             }
             for item in details
         ]),
@@ -1547,10 +1607,10 @@ def render_review_queue(foundation, intelligence, workflow) -> None:
             empty_state("没有待审核简报", "所有已保存简报均已离开待审核队列。")
         else:
             st.dataframe(pd.DataFrame([
-                {"标题": item.title, "类型": _zh(item.brief_type), "状态": _zh(item.status), "声明数量": len(item.claims), "生成时间": item.generated_at}
+                {"标题": _zh_text(item.title), "类型": _zh(item.brief_type), "状态": _zh(item.status), "声明数量": len(item.claims), "生成时间": _format_datetime_zh(item.generated_at)}
                 for item in items
             ]), hide_index=True, width="stretch")
-            selected = {f"{item.title} · {item.brief_id}": item for item in items}
+            selected = {f"{_zh_text(item.title)} · {item.brief_id}": item for item in items}
             brief = selected[st.selectbox("打开简报", list(selected), key="review_brief_select")]
             reviewer = st.text_input("审核人", value="本地审核人", key="queue_brief_reviewer")
             note = st.text_input("审核备注", key="queue_brief_note")
@@ -1559,7 +1619,7 @@ def render_review_queue(foundation, intelligence, workflow) -> None:
                     workflow.brief_workflow_service.start_review(brief.brief_id, reviewer, note)
                     _refresh()
                 except ValueError as exc:
-                    error_state("Brief review could not start", "Check the current Brief state and reviewer name.", str(exc))
+                    error_state("无法开始简报审核", "请检查简报当前状态和审核人姓名。", str(exc))
     with claims_tab:
         queue_name = st.selectbox(
             "声明队列",
@@ -1572,7 +1632,7 @@ def render_review_queue(foundation, intelligence, workflow) -> None:
             empty_state("当前队列没有声明", "没有已保存声明符合所选审核状态。")
         else:
             st.dataframe(pd.DataFrame([
-                {"类型": _zh(item.claim_type), "声明": item.claim_text, "证据支持": _zh(item.support_level), "审核状态": _zh(item.review_status), "证据数量": len(item.evidence_ids)}
+                {"类型": _zh(item.claim_type), "声明": _zh_text(item.claim_text), "证据支持": _zh(item.support_level), "审核状态": _zh(item.review_status), "证据数量": len(item.evidence_ids)}
                 for item in items
             ]), hide_index=True, width="stretch")
             selected = {f"{item.claim_type} · {item.claim_text[:90]} · {item.claim_id}": item for item in items}
@@ -1600,7 +1660,7 @@ def render_review_queue(foundation, intelligence, workflow) -> None:
                     intelligence.traceability_service.validate_brief(claim.brief_id)
                     _refresh()
                 except ValueError as exc:
-                    error_state("Claim review could not be saved", "Check the action and required Evidence links.", str(exc))
+                    error_state("无法保存声明审核", "请检查审核操作和必需的证据链接。", str(exc))
             if claim.evidence_ids:
                 with st.expander("打开证据", expanded=False):
                     for evidence_id in claim.evidence_ids:
@@ -1611,10 +1671,10 @@ def render_review_queue(foundation, intelligence, workflow) -> None:
             empty_state("没有待验证证据", "所有证据记录均已有明确的验证状态。")
         else:
             st.dataframe(pd.DataFrame([
-                {"标题": item.source_title, "来源类型": _zh(item.source_type), "验证状态": _zh(item.validation_status), "证据状态": _zh(item.evidence_status), "发布日期": item.publication_date}
+                {"标题": _zh_text(item.source_title), "来源类型": _zh(item.source_type), "验证状态": _zh(item.validation_status), "证据状态": _zh(item.evidence_status), "发布日期": _format_datetime_zh(item.publication_date)}
                 for item in items
             ]), hide_index=True, width="stretch")
-            selected = {f"{item.source_title} · {item.evidence_id}": item for item in items}
+            selected = {f"{_zh_text(item.source_title)} · {item.evidence_id}": item for item in items}
             evidence = selected[st.selectbox("打开证据", list(selected), key="queue_evidence_select")]
             _render_evidence_citation(foundation, evidence.evidence_id)
 
@@ -2238,7 +2298,7 @@ def render_briefs_and_claims(foundation, intelligence, workflow) -> None:
             "声明数量": len(item.claims),
             "可追溯": f"{validation['traceable_claims']} / {validation['total_claims']}",
             "无效引用": validation["invalid_citations_detected"],
-            "生成时间": item.generated_at,
+            "生成时间": _format_datetime_zh(item.generated_at),
             "模拟数据": "是" if item.is_demo else "否",
         })
     library_summary = st.columns(4)
@@ -2296,7 +2356,7 @@ def render_briefs_and_claims(foundation, intelligence, workflow) -> None:
         review_cols[0].metric("审核人", metadata.reviewer or "未分配")
         review_cols[1].metric("审核时长", _metric_value(metadata.review_minutes, " 分钟"))
         review_cols[2].metric("修改次数", metadata.revision_count)
-        review_cols[3].metric("完成时间", metadata.review_completed_at or "待处理")
+        review_cols[3].metric("完成时间", _format_datetime_zh(metadata.review_completed_at) if metadata.review_completed_at else "待处理")
         if metadata.review_notes:
             st.caption("审核备注：" + " · ".join(metadata.review_notes))
 
